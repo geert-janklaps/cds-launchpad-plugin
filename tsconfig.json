@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "sourceMap": true,
+      "module": "CommonJS",
+      "target": "ES2021",
+      "outDir": "./dist",
+      "baseUrl": "./src",
+      "moduleResolution": "Node"
+    },
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "node_modules"
+    ]
+}

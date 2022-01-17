@@ -1,0 +1,38 @@
+{
+    "defaultRenderer": "fiori2",
+    "bootstrapPlugins": {
+        "RuntimeAuthoringPlugin": {
+            "component": "sap.ushell.plugins.rta",
+            "config": {
+                "validateAppVersion": false
+            }
+        }
+    },
+    "renderers": {
+        "fiori2": {
+            "componentData": {
+                "config": {
+                    "search": "hidden"
+                }
+            }
+        }
+    },
+    "applications": {
+        "fs-form": {
+            "title": "Form UI",
+            "description": "Form UI",
+            "additionalInformation": "SAPUI5.Component=sap.ui.eventregistration.form",
+            "applicationType": "URL",
+            "url": "./form",
+            "navigationMode": "embedded"
+        },
+        "fe-lrop-v4": {
+            "title": "Admin UI",
+            "description": "Admin UI",
+            "additionalInformation": "SAPUI5.Component=sap.ui.eventregistration.admin",
+            "applicationType": "URL",
+            "url": "./admin",
+            "navigationMode": "embedded"
+        }
+    }
+}

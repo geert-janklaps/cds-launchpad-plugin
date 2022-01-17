@@ -1,0 +1,36 @@
+{
+  "name": "cds-launchpad-plugin",
+  "version": "1.0.0",
+  "description": "Launchpad Plugin for demo / development / testing SAP CAP-based projects",
+  "main": "dist/index.js",
+  "typings": "dist/index",
+  "scripts": {
+    "dev": "ts-node ./test/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geert-janklaps/cds-launchpad-plugin.git"
+  },
+  "keywords": [
+    "cds",
+    "cap",
+    "launchpad",
+    "fiori",
+    "sapui5",
+    "openui5"
+  ],
+  "author": "Geert-Jan Klaps",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/geert-janklaps/cds-launchpad-plugin/issues"
+  },
+  "homepage": "https://github.com/geert-janklaps/cds-launchpad-plugin#readme",
+  "dependencies": {
+    "@sap/cds-dk": "^4.7.3",
+    "express": "^4.17.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
+  }
+}
