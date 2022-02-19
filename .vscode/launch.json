@@ -8,11 +8,18 @@
             "name": "Debug",
             "type": "node",
             "request": "launch",
-            "args": ["./test/server.ts"],
+            "args": ["./test/sample/srv/server.ts"],
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
             "sourceMaps": true,
             "cwd": "${workspaceRoot}",
             "protocol": "inspector",
-        }
+        },
+        {
+            "command": "cds-ts run ./test/sample --with-mocks --in-memory?",
+            "name": "cds-ts run",
+            "request": "launch",
+            "type": "node-terminal",
+            "skipFiles": [ "<node_internals>/**" ]
+          }
     ]
 }

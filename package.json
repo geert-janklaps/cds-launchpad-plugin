@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Launchpad Plugin for demo / development / testing SAP CAP-based projects",
   "main": "dist/index.js",
-  "typings": "dist/index",
+  "types": "dist/index",
   "scripts": {
-    "dev": "ts-node ./test/server.ts",
+    "dev": "cds-ts run ./test/sample --with-mocks --in-memory?",
+    "devold": "ts-node ./test/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "tsc"
   },
@@ -28,8 +29,20 @@
   },
   "homepage": "https://github.com/geert-janklaps/cds-launchpad-plugin#readme",
   "dependencies": {
-    "@sap/cds-dk": "^4.7.3",
+    "@sap/cds-dk": ">=4.3",
+    "dot-properties": "^1.0.1"
+  },
+  "peerDependencies": {
+    "@sap/cds": ">=5",
+    "@sap/cds-dk": ">=4.3",
+    "express": ">=4"
+  },
+  "devDependencies": {
+    "@sap/cds": "^5.7.5",
+    "@types/body-parser": "^1.19.2",
+    "@types/express": "^4.17.13",
     "express": "^4.17.2",
+    "sqlite3": "^5.0.2",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
   }

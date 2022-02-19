@@ -3,14 +3,29 @@
       "sourceMap": true,
       "module": "CommonJS",
       "target": "ES2021",
-      "outDir": "./dist",
-      "baseUrl": "./src",
-      "moduleResolution": "Node"
+      "outDir": "dist",
+      "rootDir": "src",
+      "baseUrl": "./",
+      "declarationMap": true,
+      "declaration": true,
+      "allowJs": true,
+      "checkJs": false,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "preserveConstEnums": true,
+      "moduleResolution": "node",
+      "strict": false,
+      "strictNullChecks": false,
+      "strictPropertyInitialization": false
     },
     "include": [
-      "src/**/*.ts"
+      "src/**/*.ts",
+      "decs.d.ts"
     ],
     "exclude": [
       "node_modules"
-    ]
+    ],
+    "ts-node": {
+      "transpileOnly": true
+    }
 }
