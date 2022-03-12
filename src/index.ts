@@ -1,7 +1,8 @@
 import * as express from 'express';
 import * as fs from 'fs';
-import * as cds from '@sap/cds-dk';
+//import * as cds from '@sap/cds-dk';
 import { parse, parseLines, stringify } from 'dot-properties';
+const cds = require('@sap/cds-dk');
 
 const LOG = cds.log('cds-launchpad-plugin');
 export interface LaunchpadConfig {
@@ -15,7 +16,7 @@ export class cds_launchpad_plugin{
     options = Object.assign({ basePath:'/$launchpad' }, options)
     const router = express.Router();
 
-    cds.default.on('serving', async (service) => {
+    cds.on('serving', async (service) => {
       debugger;
       const apiPath = options.basePath;
       const mount = apiPath.replace('$','[\\$]')
@@ -44,17 +45,18 @@ export class cds_launchpad_plugin{
     }
 
     // Read CDS project package
-    let packagejson = JSON.parse(fs.readFileSync(cds.default.root + '/package.json').toString());
+    let packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
 
     // Read manifest files for each UI project that is defined in the project package
     if(Array.isArray(packagejson.sapux)){
       const apps = new Array();
 
       packagejson.sapux.forEach(element => {
-        let manifest = JSON.parse(fs.readFileSync(cds.default.root + '/' + element + '/webapp/manifest.json' ).toString());
-        let i18n = parse(fs.readFileSync(cds.default.root + '/' + element + '/webapp/i18n/i18n.properties' ).toString());
-        
-        apps.push({ manifest: manifest, i18n: i18n});
+        let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json' ).toString());
+        let i18n = parse(fs.readFileSync(cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n ).toString());
+        let tileconfig = manifest["sap.app"].crossNavigation.inbounds[Object.keys(manifest["sap.app"].crossNavigation.inbounds)[0]];
+
+        apps.push({ manifest: manifest, i18n: i18n, tileconfig: tileconfig});
       });
 
       debugger;
