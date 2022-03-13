@@ -39,6 +39,10 @@ class cds_launchpad_plugin {
                 response.send(await this.prepareTemplate(options));
                 //next();
             });
+            router.use('/appconfig/fioriSandboxConfig.json', async (request, response, next) => {
+                debugger;
+                response.send(await this.prepareAppConfigJSON());
+            });
             this.addLinkToIndexHtml(service, apiPath);
         });
         return router;
@@ -47,10 +51,15 @@ class cds_launchpad_plugin {
         let url = `https://sapui5.hana.ondemand.com`;
         let theme = options.theme ? options.theme : "sap_fiori_3";
         let htmltemplate = fs.readFileSync(__dirname + '/../templates/launchpad.html').toString();
-        let config = JSON.parse(fs.readFileSync(__dirname + '/../templates/launchpad.json').toString());
         if (options.version !== undefined && options.version !== '') {
             url = url + '/' + options.version;
         }
+        return htmltemplate.replaceAll('LIB_URL', url)
+            .replaceAll('THEME', theme);
+    }
+    async prepareAppConfigJSON() {
+        // Read app config template
+        let config = JSON.parse(fs.readFileSync(__dirname + '/../templates/appconfig.json').toString());
         // Read CDS project package
         let packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
         // Read manifest files for each UI project that is defined in the project package
@@ -59,37 +68,39 @@ class cds_launchpad_plugin {
             packagejson.sapux.forEach(element => {
                 let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json').toString());
                 let i18n = (0, dot_properties_1.parse)(fs.readFileSync(cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n).toString());
-                let tileconfig = manifest["sap.app"].crossNavigation.inbounds[Object.keys(manifest["sap.app"].crossNavigation.inbounds)[0]];
-                // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
-                Object.keys(tileconfig).forEach(key => {
-                    if (key === 'title' || key === 'subTitle') {
-                        tileconfig[key] = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
-                        if (i18n[tileconfig[key].toString()] !== undefined) {
-                            tileconfig[key] = `${i18n[tileconfig[key].toString()]}`;
+                let tileconfig = manifest["sap.app"]?.crossNavigation?.inbounds[Object.keys(manifest["sap.app"]?.crossNavigation?.inbounds)[0]];
+                if (tileconfig !== undefined) {
+                    // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
+                    Object.keys(tileconfig).forEach(key => {
+                        if (key === 'title' || key === 'subTitle') {
+                            tileconfig[key] = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
+                            if (i18n[tileconfig[key].toString()] !== undefined) {
+                                tileconfig[key] = `${i18n[tileconfig[key].toString()]}`;
+                            }
                         }
-                    }
-                });
-                // App URL
-                let url = element.replace(cds.env.folders.app, '');
-                // App tile template
-                let tile = `{ "${manifest["sap.app"].id}" : {
-            "title": "${tileconfig.title}",
-            "description": "${tileconfig.subTitle}",
-            "icon": "${tileconfig.icon}",
-            "additionalInformation": "SAPUI5.Component=${manifest["sap.app"].id}",
-            "applicationType": "URL",
-            "url": "./${url}",
-            "navigationMode": "embedded"
-        } }`;
-                // Add app title to application object
-                Object.assign(applications, JSON.parse(tile));
+                    });
+                    // App URL
+                    let url = `/${element.replace(cds.env.folders.app, '')}/webapp`;
+                    let component = `SAPUI5.Component=${manifest["sap.app"].id}`;
+                    // App tile template
+                    config.services.LaunchPage.adapter.config.groups[0].tiles.push({ id: manifest["sap.app"].id,
+                        properties: {
+                            targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`,
+                            title: `${tileconfig.title}`,
+                            info: `${tileconfig.subTitle}`,
+                            icon: `${tileconfig.icon}`
+                        },
+                        tileType: 'sap.ushell.ui.tile.StaticTile' });
+                    config.services.ClientSideTargetResolution.adapter.config.inbounds[manifest["sap.app"].id] = tileconfig;
+                    config.services.ClientSideTargetResolution.adapter.config.inbounds[manifest["sap.app"].id].resolutionResult = {
+                        "applicationType": "SAPUI5",
+                        "additionalInformation": component,
+                        "url": url
+                    };
+                }
             });
-            // Update applications in launchpad configuration
-            config.applications = Object.assign(config.applications, applications);
         }
-        return htmltemplate.replaceAll('LIB_URL', url)
-            .replaceAll('THEME', theme)
-            .replaceAll('CONFIG', JSON.stringify(config));
+        return config;
     }
     addLinkToIndexHtml(service, apiPath) {
         const provider = (entity) => {
