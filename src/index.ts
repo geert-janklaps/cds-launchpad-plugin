@@ -38,7 +38,7 @@ export class cds_launchpad_plugin{
     let theme = options.theme ? options.theme : "sap_fiori_3";
 
     let htmltemplate = fs.readFileSync(__dirname + '/../templates/launchpad.html').toString();
-    let config = fs.readFileSync(__dirname + '/../templates/launchpad.json').toString();
+    let config = JSON.parse(fs.readFileSync(__dirname + '/../templates/launchpad.json').toString());
 
     if(options.version !== ''){
       url = url + '/' + options.version;
@@ -50,21 +50,47 @@ export class cds_launchpad_plugin{
     // Read manifest files for each UI project that is defined in the project package
     if(Array.isArray(packagejson.sapux)){
       const apps = new Array();
+      let applications = {};
 
       packagejson.sapux.forEach(element => {
         let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json' ).toString());
         let i18n = parse(fs.readFileSync(cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n ).toString());
         let tileconfig = manifest["sap.app"].crossNavigation.inbounds[Object.keys(manifest["sap.app"].crossNavigation.inbounds)[0]];
 
+        Object.keys(tileconfig).forEach(key => {
+          if(key === 'title' || key === 'subTitle'){
+              tileconfig[key] = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
+              
+              if(i18n[tileconfig[key].toString()] !== undefined) {
+                  tileconfig[key] = `${i18n[tileconfig[key].toString()]}`;
+              }
+          }  
+        });
+
+        let url = element.replace(cds.env.folders.app, '');
+
+        let tile = `{ "${manifest["sap.app"].id}" : {
+            "title": "${tileconfig.title}",
+            "description": "${tileconfig.subTitle}",
+            "icon": "${tileconfig.icon}",
+            "additionalInformation": "SAPUI5.Component=${manifest["sap.app"].id}",
+            "applicationType": "URL",
+            "url": "./${url}",
+            "navigationMode": "embedded"
+        } }`;
+
+        Object.assign(applications, JSON.parse(tile));
         apps.push({ manifest: manifest, i18n: i18n, tileconfig: tileconfig});
       });
+
+      config.applications = Object.assign(config.applications, applications);
 
       debugger;
     }
 
     return htmltemplate.replaceAll('LIB_URL', url)
                       .replaceAll('THEME', theme)
-                      .replaceAll('CONFIG', config);
+                      .replaceAll('CONFIG', JSON.stringify(config));
   }
 
   addLinkToIndexHtml(service, apiPath: string) {
