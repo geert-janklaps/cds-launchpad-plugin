@@ -28,10 +28,10 @@ const cds = require('@sap/cds-dk');
 const LOG = cds.log('cds-launchpad-plugin');
 class cds_launchpad_plugin {
     setup(options) {
-        options = Object.assign({ basePath: '/$launchpad' }, options);
+        options = options !== undefined ? options : {};
+        options = options.basePath !== undefined ? options : Object.assign({ basePath: '/$launchpad' }, options);
         const router = express.Router();
         cds.on('serving', async (service) => {
-            debugger;
             const apiPath = options.basePath;
             const mount = apiPath.replace('$', '[\\$]');
             LOG._debug && LOG.debug('serving launchpad for ', { service: service.name, at: apiPath });
@@ -48,19 +48,19 @@ class cds_launchpad_plugin {
         let theme = options.theme ? options.theme : "sap_fiori_3";
         let htmltemplate = fs.readFileSync(__dirname + '/../templates/launchpad.html').toString();
         let config = JSON.parse(fs.readFileSync(__dirname + '/../templates/launchpad.json').toString());
-        if (options.version !== '') {
+        if (options.version !== undefined && options.version !== '') {
             url = url + '/' + options.version;
         }
         // Read CDS project package
         let packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
         // Read manifest files for each UI project that is defined in the project package
         if (Array.isArray(packagejson.sapux)) {
-            const apps = new Array();
             let applications = {};
             packagejson.sapux.forEach(element => {
                 let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json').toString());
                 let i18n = (0, dot_properties_1.parse)(fs.readFileSync(cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n).toString());
                 let tileconfig = manifest["sap.app"].crossNavigation.inbounds[Object.keys(manifest["sap.app"].crossNavigation.inbounds)[0]];
+                // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
                 Object.keys(tileconfig).forEach(key => {
                     if (key === 'title' || key === 'subTitle') {
                         tileconfig[key] = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
@@ -69,7 +69,9 @@ class cds_launchpad_plugin {
                         }
                     }
                 });
+                // App URL
                 let url = element.replace(cds.env.folders.app, '');
+                // App tile template
                 let tile = `{ "${manifest["sap.app"].id}" : {
             "title": "${tileconfig.title}",
             "description": "${tileconfig.subTitle}",
@@ -79,11 +81,11 @@ class cds_launchpad_plugin {
             "url": "./${url}",
             "navigationMode": "embedded"
         } }`;
+                // Add app title to application object
                 Object.assign(applications, JSON.parse(tile));
-                apps.push({ manifest: manifest, i18n: i18n, tileconfig: tileconfig });
             });
+            // Update applications in launchpad configuration
             config.applications = Object.assign(config.applications, applications);
-            debugger;
         }
         return htmltemplate.replaceAll('LIB_URL', url)
             .replaceAll('THEME', theme)

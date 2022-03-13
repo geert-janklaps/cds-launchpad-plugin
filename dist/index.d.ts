@@ -5,7 +5,7 @@ export interface LaunchpadConfig {
     basePath?: string;
 }
 export declare class cds_launchpad_plugin {
-    setup(options: LaunchpadConfig): express.Router;
+    setup(options?: LaunchpadConfig): express.Router;
     prepareTemplate(options: LaunchpadConfig): Promise<string>;
     addLinkToIndexHtml(service: any, apiPath: string): void;
 }

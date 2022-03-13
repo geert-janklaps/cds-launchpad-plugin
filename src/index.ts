@@ -12,12 +12,12 @@ export interface LaunchpadConfig {
 }
 
 export class cds_launchpad_plugin{
-  setup (options: LaunchpadConfig): express.Router{
-    options = Object.assign({ basePath:'/$launchpad' }, options)
+  setup (options?: LaunchpadConfig): express.Router{
+    options = options !== undefined ? options : {};
+    options = options.basePath !== undefined ? options : Object.assign({ basePath:'/$launchpad' }, options);
     const router = express.Router();
 
     cds.on('serving', async (service) => {
-      debugger;
       const apiPath = options.basePath;
       const mount = apiPath.replace('$','[\\$]')
       LOG._debug && LOG.debug ('serving launchpad for ', {service: service.name, at: apiPath})
@@ -40,7 +40,7 @@ export class cds_launchpad_plugin{
     let htmltemplate = fs.readFileSync(__dirname + '/../templates/launchpad.html').toString();
     let config = JSON.parse(fs.readFileSync(__dirname + '/../templates/launchpad.json').toString());
 
-    if(options.version !== ''){
+    if(options.version !== undefined && options.version !== ''){
       url = url + '/' + options.version;
     }
 
@@ -49,7 +49,6 @@ export class cds_launchpad_plugin{
 
     // Read manifest files for each UI project that is defined in the project package
     if(Array.isArray(packagejson.sapux)){
-      const apps = new Array();
       let applications = {};
 
       packagejson.sapux.forEach(element => {
@@ -57,6 +56,7 @@ export class cds_launchpad_plugin{
         let i18n = parse(fs.readFileSync(cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n ).toString());
         let tileconfig = manifest["sap.app"].crossNavigation.inbounds[Object.keys(manifest["sap.app"].crossNavigation.inbounds)[0]];
 
+        // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
         Object.keys(tileconfig).forEach(key => {
           if(key === 'title' || key === 'subTitle'){
               tileconfig[key] = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
@@ -67,8 +67,10 @@ export class cds_launchpad_plugin{
           }  
         });
 
+        // App URL
         let url = element.replace(cds.env.folders.app, '');
 
+        // App tile template
         let tile = `{ "${manifest["sap.app"].id}" : {
             "title": "${tileconfig.title}",
             "description": "${tileconfig.subTitle}",
@@ -79,13 +81,12 @@ export class cds_launchpad_plugin{
             "navigationMode": "embedded"
         } }`;
 
+        // Add app title to application object
         Object.assign(applications, JSON.parse(tile));
-        apps.push({ manifest: manifest, i18n: i18n, tileconfig: tileconfig});
       });
 
+      // Update applications in launchpad configuration
       config.applications = Object.assign(config.applications, applications);
-
-      debugger;
     }
 
     return htmltemplate.replaceAll('LIB_URL', url)

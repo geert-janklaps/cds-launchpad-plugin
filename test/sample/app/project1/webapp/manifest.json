@@ -35,7 +35,7 @@
                     "action": "action",
                     "title": "{{flpTitle}}",
                     "subTitle": "{{flpSubtitle}}",
-                    "icon": ""
+                    "icon": "sap-icon://add"
                 }
             }
         }
