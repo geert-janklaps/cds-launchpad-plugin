@@ -47,8 +47,8 @@ export class cds_launchpad_plugin{
       url = url + '/' + options.version;
     }
 
-    return htmltemplate.replaceAll('LIB_URL', url)
-                      .replaceAll('THEME', theme);
+    return htmltemplate.replace(/LIB_URL/g, url)
+                       .replace(/THEME/g, theme);
   }
 
   async prepareAppConfigJSON(): Promise<string> {
