@@ -8,7 +8,8 @@ const LOG = cds.log('cds-launchpad-plugin');
 export interface LaunchpadConfig {
   version?: string,
   theme?: string,
-  basePath?: string
+  basePath?: string,
+  appConfigPath?: string
 }
 
 export class cds_launchpad_plugin{
@@ -28,8 +29,8 @@ export class cds_launchpad_plugin{
       });
 
       router.use('/appconfig/fioriSandboxConfig.json', async (request, response, next) => {
-        debugger;
-        response.send(await this.prepareAppConfigJSON());
+        // debugger;
+        response.send(await this.prepareAppConfigJSON(options));
       });
 
       this.addLinkToIndexHtml(service, apiPath)
@@ -51,9 +52,15 @@ export class cds_launchpad_plugin{
                        .replace(/THEME/g, theme);
   }
 
-  async prepareAppConfigJSON(): Promise<string> {
+  async prepareAppConfigJSON(options: LaunchpadConfig): Promise<string> {
     // Read app config template
     let config = JSON.parse(fs.readFileSync(__dirname + '/../templates/appconfig.json').toString());
+
+    // Read externally provided config 
+    let extConfig = options.appConfigPath ? JSON.parse(fs.readFileSync(options.appConfigPath).toString()) : {};
+
+    // merge the two
+    Object.assign(config, extConfig);
 
     // Read CDS project package
     let packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
