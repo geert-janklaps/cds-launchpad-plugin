@@ -8,7 +8,8 @@ const LOG = cds.log('cds-launchpad-plugin');
 export interface LaunchpadConfig {
   version?: string,
   theme?: string,
-  basePath?: string
+  basePath?: string,
+  appConfigPath?: string
 }
 
 export class cds_launchpad_plugin{
@@ -28,8 +29,8 @@ export class cds_launchpad_plugin{
       });
 
       router.use('/appconfig/fioriSandboxConfig.json', async (request, response, next) => {
-        debugger;
-        response.send(await this.prepareAppConfigJSON());
+        // debugger;
+        response.send(await this.prepareAppConfigJSON(options));
       });
 
       this.addLinkToIndexHtml(service, apiPath)
@@ -51,9 +52,15 @@ export class cds_launchpad_plugin{
                        .replace(/THEME/g, theme);
   }
 
-  async prepareAppConfigJSON(): Promise<string> {
+  async prepareAppConfigJSON(options: LaunchpadConfig): Promise<string> {
     // Read app config template
     let config = JSON.parse(fs.readFileSync(__dirname + '/../templates/appconfig.json').toString());
+
+    // Read externally provided config 
+    let extConfig = options.appConfigPath ? JSON.parse(fs.readFileSync(options.appConfigPath).toString()) : {};
+
+    // merge the two
+    Object.assign(config, extConfig);
 
     // Read CDS project package
     let packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
@@ -84,13 +91,23 @@ export class cds_launchpad_plugin{
           let component = `SAPUI5.Component=${manifest["sap.app"].id}`;
 
           // App tile template
-          config.services.LaunchPage.adapter.config.groups[0].tiles.push({ id: manifest["sap.app"].id, 
-                                                                           properties: { 
-                                                                            targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`, 
-                                                                            title: `${tileconfig.title}`,
-                                                                            info: `${tileconfig.subTitle}`,
-                                                                            icon: `${tileconfig.icon}` }, 
-                                                                           tileType: 'sap.ushell.ui.tile.StaticTile' });
+          config.services.LaunchPage.adapter.config.groups[0].tiles.push({
+            id: manifest["sap.app"].id, 
+            properties: Object.assign({ 
+              targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`, 
+              title: `${tileconfig.title}`,
+              info: `${tileconfig.subTitle}`,
+              icon: `${tileconfig.icon}`
+            }, tileconfig.indicatorDataSource ? {
+              serviceUrl: manifest["sap.app"].dataSources[tileconfig.indicatorDataSource.dataSource].uri + tileconfig.indicatorDataSource.path
+            } : {} ), 
+            tileType: tileconfig.indicatorDataSource ? 'sap.ushell.ui.tile.DynamicTile' : 'sap.ushell.ui.tile.StaticTile',
+            serviceRefreshInterval: (tileconfig.indicatorDataSource && tileconfig.indicatorDataSource.refresh || 10) // defautl 10 sec
+            // multiplying by a large number basically means "never refresh" - this can stay this way as long as
+            // its not supported by the local adapter, see sap.ushell.adapters.local.LaunchPageAdapter, private function handleTileServiceCall,
+            // which does the service calls correctly and regularly, but doesnt update the tiles
+            * 1000 
+          });
 
           config.services.ClientSideTargetResolution.adapter.config.inbounds[manifest["sap.app"].id] = tileconfig;
           config.services.ClientSideTargetResolution.adapter.config.inbounds[manifest["sap.app"].id].resolutionResult = {
