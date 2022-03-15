@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -71,15 +75,19 @@ class cds_launchpad_plugin {
             let applications = {};
             packagejson.sapux.forEach(element => {
                 let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json').toString());
-                let i18n = (0, dot_properties_1.parse)(fs.readFileSync(cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n).toString());
+                let i18nPath = cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n;
+                if (options.locale) {
+                    i18nPath = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`);
+                }
+                let i18n = (0, dot_properties_1.parse)(fs.readFileSync(i18nPath).toString());
                 let tileconfig = manifest["sap.app"]?.crossNavigation?.inbounds[Object.keys(manifest["sap.app"]?.crossNavigation?.inbounds)[0]];
                 if (tileconfig !== undefined) {
                     // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
                     Object.keys(tileconfig).forEach(key => {
-                        if (key === 'title' || key === 'subTitle') {
-                            tileconfig[key] = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
-                            if (i18n[tileconfig[key].toString()] !== undefined) {
-                                tileconfig[key] = `${i18n[tileconfig[key].toString()]}`;
+                        if (['title', 'subTitle', 'info'].includes(key)) {
+                            const strippedValue = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
+                            if (i18n[strippedValue] !== undefined) {
+                                tileconfig[key] = i18n[strippedValue];
                             }
                         }
                     });
@@ -91,9 +99,10 @@ class cds_launchpad_plugin {
                         id: manifest["sap.app"].id,
                         properties: Object.assign({
                             targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`,
-                            title: `${tileconfig.title}`,
-                            info: `${tileconfig.subTitle}`,
-                            icon: `${tileconfig.icon}`
+                            title: tileconfig.title,
+                            info: tileconfig.info,
+                            subtitle: tileconfig.subTitle,
+                            icon: tileconfig.icon
                         }, tileconfig.indicatorDataSource ? {
                             serviceUrl: manifest["sap.app"].dataSources[tileconfig.indicatorDataSource.dataSource].uri + tileconfig.indicatorDataSource.path
                         } : {}),

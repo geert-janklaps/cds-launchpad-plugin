@@ -9,7 +9,8 @@ export interface LaunchpadConfig {
   version?: string,
   theme?: string,
   basePath?: string,
-  appConfigPath?: string
+  appConfigPath?: string,
+  locale?: string // TODO if it was possible to get sap-ui-language from request which retrieves the app config json, we wouldnt need this option
 }
 
 export class cds_launchpad_plugin{
@@ -71,17 +72,21 @@ export class cds_launchpad_plugin{
 
       packagejson.sapux.forEach(element => {
         let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json' ).toString());
-        let i18n = parse(fs.readFileSync(cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n ).toString());
+        let i18nPath = cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n;
+        if (options.locale) {
+          i18nPath = i18nPath.replace(/(\.properties)$/,`_${options.locale}$1`);
+        }
+        let i18n = parse(fs.readFileSync( i18nPath ).toString());
         let tileconfig = manifest["sap.app"]?.crossNavigation?.inbounds[Object.keys(manifest["sap.app"]?.crossNavigation?.inbounds)[0]];
 
         if(tileconfig !== undefined){
           // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
           Object.keys(tileconfig).forEach(key => {
-            if(key === 'title' || key === 'subTitle'){
-                tileconfig[key] = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
+            if(['title','subTitle','info'].includes(key)){
+                const strippedValue = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
                 
-                if(i18n[tileconfig[key].toString()] !== undefined) {
-                    tileconfig[key] = `${i18n[tileconfig[key].toString()]}`;
+                if(i18n[strippedValue] !== undefined) {
+                    tileconfig[key] = i18n[strippedValue];
                 }
             }  
           });
@@ -95,9 +100,10 @@ export class cds_launchpad_plugin{
             id: manifest["sap.app"].id, 
             properties: Object.assign({ 
               targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`, 
-              title: `${tileconfig.title}`,
-              info: `${tileconfig.subTitle}`,
-              icon: `${tileconfig.icon}`
+              title: tileconfig.title,
+              info: tileconfig.info,
+              subtitle: tileconfig.subTitle,
+              icon: tileconfig.icon
             }, tileconfig.indicatorDataSource ? {
               serviceUrl: manifest["sap.app"].dataSources[tileconfig.indicatorDataSource.dataSource].uri + tileconfig.indicatorDataSource.path
             } : {} ), 

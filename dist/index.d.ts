@@ -4,6 +4,7 @@ export interface LaunchpadConfig {
     theme?: string;
     basePath?: string;
     appConfigPath?: string;
+    locale?: string;
 }
 export declare class cds_launchpad_plugin {
     setup(options?: LaunchpadConfig): express.Router;
