@@ -40,3 +40,9 @@ Call `setup({...})` method with the following object (configuration object can b
   locale: '' // Language to be used for the sandbox environment
 }
 ```
+
+## External references
+
+Solution overview: https://blogs.sap.com/2022/03/14/a-fiori-launchpad-sandbox-for-all-your-cap-based-projects-overview/
+
+Sample project setup: https://blogs.sap.com/2022/03/14/a-fiori-launchpad-sandbox-for-all-your-cap-based-projects-sample-project-setup/
