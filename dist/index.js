@@ -75,6 +75,17 @@ class cds_launchpad_plugin {
             let applications = {};
             packagejson.sapux.forEach(element => {
                 let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json').toString());
+                if (manifest["sap.flp"]?.type === 'plugin') {
+                    const component = manifest["sap.app"].id;
+                    const name = component.split('.').pop();
+                    config.bootstrapPlugins[name] = {
+                        component,
+                        url: name + "/webapp",
+                        'sap-ushell-plugin-type': 'RendererExtensions',
+                        enabled: true
+                    };
+                    return;
+                }
                 let i18nPath = cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n;
                 if (options.locale) {
                     i18nPath = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`);
