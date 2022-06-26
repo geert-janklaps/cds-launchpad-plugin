@@ -1,4 +1,5 @@
 {
+    "bootstrapPlugins": {},
     "services": {
       "LaunchPage": {
         "adapter": {
