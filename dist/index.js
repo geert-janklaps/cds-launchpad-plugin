@@ -75,8 +75,9 @@ class cds_launchpad_plugin {
             let applications = {};
             packagejson.sapux.forEach(element => {
                 let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json').toString());
+                const appId = manifest["sap.app"].id;
                 if (manifest["sap.flp"]?.type === 'plugin') {
-                    const component = manifest["sap.app"].id;
+                    const component = appId;
                     const name = component.split('.').pop();
                     config.bootstrapPlugins[name] = {
                         component,
@@ -94,6 +95,7 @@ class cds_launchpad_plugin {
                 let tileconfigs = manifest["sap.app"]?.crossNavigation?.inbounds;
                 for (let tileconfigId in tileconfigs) {
                     let tileconfig = tileconfigs[tileconfigId];
+                    const tileId = `${appId}-${tileconfigId}`;
                     // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
                     Object.keys(tileconfig).forEach(key => {
                         if (['title', 'subTitle', 'info'].includes(key)) {
@@ -105,10 +107,10 @@ class cds_launchpad_plugin {
                     });
                     // App URL
                     let url = `/${element.replace(cds.env.folders.app, '')}/webapp`;
-                    let component = `SAPUI5.Component=${manifest["sap.app"].id}`;
+                    let component = `SAPUI5.Component=${appId}`;
                     // App tile template
                     config.services.LaunchPage.adapter.config.groups[0].tiles.push({
-                        id: tileconfigId,
+                        id: tileId,
                         properties: Object.assign({
                             targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`,
                             title: tileconfig.title,
@@ -125,8 +127,8 @@ class cds_launchpad_plugin {
                             // which does the service calls correctly and regularly, but doesnt update the tiles
                             * 1000
                     });
-                    config.services.ClientSideTargetResolution.adapter.config.inbounds[tileconfigId] = tileconfig;
-                    config.services.ClientSideTargetResolution.adapter.config.inbounds[tileconfigId].resolutionResult = {
+                    config.services.ClientSideTargetResolution.adapter.config.inbounds[tileId] = tileconfig;
+                    config.services.ClientSideTargetResolution.adapter.config.inbounds[tileId].resolutionResult = {
                         "applicationType": "SAPUI5",
                         "additionalInformation": component,
                         "url": url
