@@ -53,8 +53,8 @@ class cds_launchpad_plugin {
     }
     async prepareTemplate(options) {
         let url = `https://sapui5.hana.ondemand.com`;
-        let theme = options.theme ? options.theme : "sap_fiori_3";
-        let htmltemplate = fs.readFileSync(__dirname + '/../templates/launchpad.html').toString();
+        const theme = options.theme ? options.theme : "sap_fiori_3";
+        const htmltemplate = fs.readFileSync(__dirname + '/../templates/launchpad.html').toString();
         if (options.version !== undefined && options.version !== '') {
             url = url + '/' + options.version;
         }
@@ -63,18 +63,18 @@ class cds_launchpad_plugin {
     }
     async prepareAppConfigJSON(options) {
         // Read app config template
-        let config = JSON.parse(fs.readFileSync(__dirname + '/../templates/appconfig.json').toString());
+        const config = JSON.parse(fs.readFileSync(__dirname + '/../templates/appconfig.json').toString());
         // Read externally provided config 
-        let extConfig = options.appConfigPath ? JSON.parse(fs.readFileSync(options.appConfigPath).toString()) : {};
+        const extConfig = options.appConfigPath ? JSON.parse(fs.readFileSync(options.appConfigPath).toString()) : {};
         // merge the two
         Object.assign(config, extConfig);
         // Read CDS project package
-        let packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
+        const packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
         // Read manifest files for each UI project that is defined in the project package
         if (Array.isArray(packagejson.sapux)) {
-            let applications = {};
+            const applications = {};
             packagejson.sapux.forEach(element => {
-                let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json').toString());
+                const manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json').toString());
                 const appId = manifest["sap.app"].id;
                 if (manifest["sap.flp"]?.type === 'plugin') {
                     const component = appId;
@@ -91,10 +91,10 @@ class cds_launchpad_plugin {
                 if (options.locale) {
                     i18nPath = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`);
                 }
-                let i18n = (0, dot_properties_1.parse)(fs.readFileSync(i18nPath).toString());
-                let tileconfigs = manifest["sap.app"]?.crossNavigation?.inbounds;
-                for (let tileconfigId in tileconfigs) {
-                    let tileconfig = tileconfigs[tileconfigId];
+                const i18n = (0, dot_properties_1.parse)(fs.readFileSync(i18nPath).toString());
+                const tileconfigs = manifest["sap.app"]?.crossNavigation?.inbounds;
+                for (const tileconfigId in tileconfigs) {
+                    const tileconfig = tileconfigs[tileconfigId];
                     const tileId = `${appId}-${tileconfigId}`;
                     // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
                     Object.keys(tileconfig).forEach(key => {
@@ -106,8 +106,8 @@ class cds_launchpad_plugin {
                         }
                     });
                     // App URL
-                    let url = `/${element.replace(cds.env.folders.app, '')}/webapp`;
-                    let component = `SAPUI5.Component=${appId}`;
+                    const url = `/${element.replace(cds.env.folders.app, '')}/webapp`;
+                    const component = `SAPUI5.Component=${appId}`;
                     // App tile template
                     config.services.LaunchPage.adapter.config.groups[0].tiles.push({
                         id: tileId,
