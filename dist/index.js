@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -71,13 +75,25 @@ class cds_launchpad_plugin {
             let applications = {};
             packagejson.sapux.forEach(element => {
                 let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json').toString());
+                if (manifest["sap.flp"]?.type === 'plugin') {
+                    const component = manifest["sap.app"].id;
+                    const name = component.split('.').pop();
+                    config.bootstrapPlugins[name] = {
+                        component,
+                        url: name + "/webapp",
+                        'sap-ushell-plugin-type': 'RendererExtensions',
+                        enabled: true
+                    };
+                    return;
+                }
                 let i18nPath = cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n;
                 if (options.locale) {
                     i18nPath = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`);
                 }
                 let i18n = (0, dot_properties_1.parse)(fs.readFileSync(i18nPath).toString());
-                let tileconfig = manifest["sap.app"]?.crossNavigation?.inbounds[Object.keys(manifest["sap.app"]?.crossNavigation?.inbounds)[0]];
-                if (tileconfig !== undefined) {
+                let tileconfigs = manifest["sap.app"]?.crossNavigation?.inbounds;
+                for (let tileconfigId in tileconfigs) {
+                    let tileconfig = tileconfigs[tileconfigId];
                     // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
                     Object.keys(tileconfig).forEach(key => {
                         if (['title', 'subTitle', 'info'].includes(key)) {
@@ -92,7 +108,7 @@ class cds_launchpad_plugin {
                     let component = `SAPUI5.Component=${manifest["sap.app"].id}`;
                     // App tile template
                     config.services.LaunchPage.adapter.config.groups[0].tiles.push({
-                        id: manifest["sap.app"].id,
+                        id: tileconfigId,
                         properties: Object.assign({
                             targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`,
                             title: tileconfig.title,
@@ -109,8 +125,8 @@ class cds_launchpad_plugin {
                             // which does the service calls correctly and regularly, but doesnt update the tiles
                             * 1000
                     });
-                    config.services.ClientSideTargetResolution.adapter.config.inbounds[manifest["sap.app"].id] = tileconfig;
-                    config.services.ClientSideTargetResolution.adapter.config.inbounds[manifest["sap.app"].id].resolutionResult = {
+                    config.services.ClientSideTargetResolution.adapter.config.inbounds[tileconfigId] = tileconfig;
+                    config.services.ClientSideTargetResolution.adapter.config.inbounds[tileconfigId].resolutionResult = {
                         "applicationType": "SAPUI5",
                         "additionalInformation": component,
                         "url": url

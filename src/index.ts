@@ -72,14 +72,28 @@ export class cds_launchpad_plugin{
 
       packagejson.sapux.forEach(element => {
         let manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json' ).toString());
+
+        if (manifest["sap.flp"]?.type === 'plugin') {
+            const component = manifest["sap.app"].id;
+            const name = component.split('.').pop();
+            config.bootstrapPlugins[name] = {
+                component,
+                url: name + "/webapp",
+                'sap-ushell-plugin-type': 'RendererExtensions',
+                enabled: true
+            }
+            return;
+        }
+
         let i18nPath = cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n;
         if (options.locale) {
           i18nPath = i18nPath.replace(/(\.properties)$/,`_${options.locale}$1`);
         }
         let i18n = parse(fs.readFileSync( i18nPath ).toString());
-        let tileconfig = manifest["sap.app"]?.crossNavigation?.inbounds[Object.keys(manifest["sap.app"]?.crossNavigation?.inbounds)[0]];
+        let tileconfigs = manifest["sap.app"]?.crossNavigation?.inbounds;
 
-        if(tileconfig !== undefined){
+        for (let tileconfigId in tileconfigs){
+          let tileconfig = tileconfigs[tileconfigId];
           // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
           Object.keys(tileconfig).forEach(key => {
             if(['title','subTitle','info'].includes(key)){
@@ -97,7 +111,7 @@ export class cds_launchpad_plugin{
 
           // App tile template
           config.services.LaunchPage.adapter.config.groups[0].tiles.push({
-            id: manifest["sap.app"].id, 
+            id: tileconfigId, 
             properties: Object.assign({ 
               targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`, 
               title: tileconfig.title,
@@ -115,8 +129,8 @@ export class cds_launchpad_plugin{
             * 1000 
           });
 
-          config.services.ClientSideTargetResolution.adapter.config.inbounds[manifest["sap.app"].id] = tileconfig;
-          config.services.ClientSideTargetResolution.adapter.config.inbounds[manifest["sap.app"].id].resolutionResult = {
+          config.services.ClientSideTargetResolution.adapter.config.inbounds[tileconfigId] = tileconfig;
+          config.services.ClientSideTargetResolution.adapter.config.inbounds[tileconfigId].resolutionResult = {
             "applicationType": "SAPUI5",
             "additionalInformation": component,
             "url": url
