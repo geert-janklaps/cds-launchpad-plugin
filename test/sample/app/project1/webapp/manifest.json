@@ -11,7 +11,7 @@
         "description": "{{appDescription}}",
         "dataSources": {
             "mainService": {
-                "uri": "/say/",
+                "uri": "/browse/",
                 "type": "OData",
                 "settings": {
                     "odataVersion": "4.0"
@@ -92,42 +92,42 @@
             "routes": [
                 {
                     "pattern": ":?query:",
-                    "name": "DummyEntityList",
-                    "target": "DummyEntityList"
+                    "name": "BooksList",
+                    "target": "BooksList"
                 },
                 {
-                    "pattern": "DummyEntity({key}):?query:",
-                    "name": "DummyEntityObjectPage",
-                    "target": "DummyEntityObjectPage"
+                    "pattern": "Books({key}):?query:",
+                    "name": "BooksObjectPage",
+                    "target": "BooksObjectPage"
                 }
             ],
             "targets": {
-                "DummyEntityList": {
+                "BooksList": {
                     "type": "Component",
-                    "id": "DummyEntityList",
+                    "id": "BooksList",
                     "name": "sap.fe.templates.ListReport",
                     "options": {
                         "settings": {
-                            "entitySet": "DummyEntity",
+                            "entitySet": "Books",
                             "variantManagement": "Page",
                             "navigation": {
-                                "DummyEntity": {
+                                "Books": {
                                     "detail": {
-                                        "route": "DummyEntityObjectPage"
+                                        "route": "BooksObjectPage"
                                     }
                                 }
                             }
                         }
                     }
                 },
-                "DummyEntityObjectPage": {
+                "BooksObjectPage": {
                     "type": "Component",
-                    "id": "DummyEntityObjectPage",
+                    "id": "BooksObjectPage",
                     "name": "sap.fe.templates.ObjectPage",
                     "options": {
                         "settings": {
                             "editableHeaderContent": false,
-                            "entitySet": "DummyEntity"
+                            "entitySet": "Books"
                         }
                     }
                 }
