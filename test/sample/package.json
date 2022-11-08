@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "sapux": [
+    "app/authors",
     "app/project1"
   ]
 }
