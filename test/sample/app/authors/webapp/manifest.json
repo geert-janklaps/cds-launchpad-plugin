@@ -3,7 +3,11 @@
     "sap.app": {
         "id": "authors",
         "type": "application",
-        "i18n": "i18n/i18n.properties",
+        "i18n": {
+            "bundleUrl": "i18n/i18n.properties",
+            "supportedLocales": ["en"],
+            "fallbackLocale": "en"
+        },
         "applicationVersion": {
             "version": "1.0.0"
         },
@@ -69,13 +73,13 @@
             }
         },
         "models": {
-            "@i18n": {
-                "type": "sap.ui.model.resource.ResourceModel",
-                "uri": "i18n/i18n.properties"
-            },
             "i18n": {
                 "type": "sap.ui.model.resource.ResourceModel",
-                "uri": "i18n/i18n.properties"
+                "settings": {
+					"bundleUrl": "i18n/i18n.properties",
+					"supportedLocales": ["en"],
+					"fallbackLocale": "en"
+				}
             },
             "": {
                 "dataSource": "mainService",
