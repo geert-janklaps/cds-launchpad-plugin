@@ -87,7 +87,17 @@ class cds_launchpad_plugin {
                     };
                     return;
                 }
-                let i18nPath = cds.root + '/' + element + '/webapp/' + manifest["sap.app"].i18n;
+                let i18nsetting = manifest["sap.app"].i18n;
+                let i18nPath = cds.root + '/' + element + '/webapp/';
+                if (typeof (i18nsetting) === "object") {
+                    if (manifest._version < "1.21.0") {
+                        LOG.error(`manifest.json version of ${element} does not allow i18n being an object. Minumum version 1.21.0.`);
+                    }
+                    i18nPath += i18nsetting.bundleUrl;
+                }
+                else {
+                    i18nPath += i18nsetting;
+                }
                 if (options.locale) {
                     i18nPath = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`);
                 }

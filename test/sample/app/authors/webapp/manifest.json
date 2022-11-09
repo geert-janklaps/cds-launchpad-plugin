@@ -1,9 +1,13 @@
 {
     "_version": "1.32.0",
     "sap.app": {
-        "id": "project1",
+        "id": "authors",
         "type": "application",
-        "i18n": "i18n/i18n.properties",
+        "i18n": {
+            "bundleUrl": "i18n/i18n.properties",
+            "supportedLocales": ["en"],
+            "fallbackLocale": "en"
+        },
         "applicationVersion": {
             "version": "1.0.0"
         },
@@ -31,8 +35,8 @@
                         "parameters": {},
                         "additionalParameters": "allowed"
                     },
-                    "semanticObject": "semanticObject",
-                    "action": "action",
+                    "semanticObject": "Authors",
+                    "action": "display",
                     "title": "{{flpTitle}}",
                     "subTitle": "{{flpSubtitle}}",
                     "icon": "sap-icon://add"
@@ -69,13 +73,13 @@
             }
         },
         "models": {
-            "@i18n": {
-                "type": "sap.ui.model.resource.ResourceModel",
-                "uri": "i18n/i18n.properties"
-            },
             "i18n": {
                 "type": "sap.ui.model.resource.ResourceModel",
-                "uri": "i18n/i18n.properties"
+                "settings": {
+					"bundleUrl": "i18n/i18n.properties",
+					"supportedLocales": ["en"],
+					"fallbackLocale": "en"
+				}
             },
             "": {
                 "dataSource": "mainService",
@@ -92,42 +96,42 @@
             "routes": [
                 {
                     "pattern": ":?query:",
-                    "name": "BooksList",
-                    "target": "BooksList"
+                    "name": "AuthorsList",
+                    "target": "AuthorsList"
                 },
                 {
-                    "pattern": "Books({key}):?query:",
-                    "name": "BooksObjectPage",
-                    "target": "BooksObjectPage"
+                    "pattern": "Authors({key}):?query:",
+                    "name": "AuthorsObjectPage",
+                    "target": "AuthorsObjectPage"
                 }
             ],
             "targets": {
-                "BooksList": {
+                "AuthorsList": {
                     "type": "Component",
-                    "id": "BooksList",
+                    "id": "AuthorsList",
                     "name": "sap.fe.templates.ListReport",
                     "options": {
                         "settings": {
-                            "entitySet": "Books",
+                            "entitySet": "Authors",
                             "variantManagement": "Page",
                             "navigation": {
-                                "Books": {
+                                "Authors": {
                                     "detail": {
-                                        "route": "BooksObjectPage"
+                                        "route": "AuthorsObjectPage"
                                     }
                                 }
                             }
                         }
                     }
                 },
-                "BooksObjectPage": {
+                "AuthorsObjectPage": {
                     "type": "Component",
-                    "id": "BooksObjectPage",
+                    "id": "AuthorsObjectPage",
                     "name": "sap.fe.templates.ObjectPage",
                     "options": {
                         "settings": {
                             "editableHeaderContent": false,
-                            "entitySet": "Books"
+                            "entitySet": "Authors"
                         }
                     }
                 }
