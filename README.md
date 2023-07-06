@@ -15,7 +15,13 @@ Have this in your [`server.js`](https://cap.cloud.sap/docs/node.js/cds-server#cu
 ```js
 const cds = require ('@sap/cds');
 
-if (process.env.NODE_ENV !== 'production') {
+/* For releases before cds 7:
+replace:
+cds.env.production === false
+with:
+process.env.NODE_ENV !== 'production'
+*/
+if (cds.env.production === false){
     const {cds_launchpad_plugin} = require('cds-launchpad-plugin');
 
     // Enable launchpad plugin

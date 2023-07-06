@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { parse, parseLines, stringify } from 'dot-properties';
 const cds = require('@sap/cds-dk');
 
-const LOG = cds.log('cds-launchpad-plugin');
+const cdsLaunchpadLogger = cds.log('cds-launchpad-plugin');
 export interface LaunchpadConfig {
   version?: string,
   theme?: string,
@@ -22,7 +22,7 @@ export class cds_launchpad_plugin{
     cds.on('serving', async (service) => {
       const apiPath = options.basePath;
       const mount = apiPath.replace('$','[\\$]')
-      LOG._debug && LOG.debug ('serving launchpad for ', {service: service.name, at: apiPath})
+      cdsLaunchpadLogger._debug && cdsLaunchpadLogger.debug ('serving launchpad for ', {service: service.name, at: apiPath})
 
       router.use(mount, async (request: express.Request, response: express.Response, next) => {
         response.send(await this.prepareTemplate(options));
@@ -90,7 +90,7 @@ export class cds_launchpad_plugin{
         let i18nPath = cds.root + '/' + element + '/webapp/';
         if(typeof(i18nsetting) === "object") {
           if(manifest._version < "1.21.0") {
-            LOG.error(`manifest.json version of ${element} does not allow i18n being an object. Minumum version 1.21.0.`)
+            cdsLaunchpadLogger.error(`manifest.json version of ${element} does not allow i18n being an object. Minumum version 1.21.0.`)
           }
           i18nPath += i18nsetting.bundleUrl;
         } else {
