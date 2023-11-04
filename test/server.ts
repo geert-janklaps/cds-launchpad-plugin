@@ -1,13 +1,5 @@
-import * as express from 'express';
- 
+import * as cds from '@sap/cds';
 
-const cds_launchpad = require('../');
-const app = express();
- 
-app.get('/', (request, response) => {
-  response.send('Hello world!');
-});
+require('../cds-plugin')
 
-app.use(cds_launchpad({version: '1.97.0', theme: 'sap_horizon'}));
-
-app.listen(5000);
+module.exports = cds.server;

@@ -12,7 +12,12 @@
         "fiori2": {
             "componentData": {
                 "config": {
-                    "search": "hidden"
+                    "enableNotificationsUI": false,
+                    "enableNotifications": false,
+                    "enableSearch": false,
+                    "enablePersonalization": false,
+                    "enableSetTheme": true,
+                    "enableSetLanguage": true
                 }
             }
         }

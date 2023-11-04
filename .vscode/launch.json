@@ -21,7 +21,7 @@
       "protocol": "inspector"
     },
     {
-      "command": "cds-ts run ./test/sample --with-mocks --in-memory?",
+      "command": "cds-ts run ./test/sample --with-mocks --in-memory",
       "name": "cds-ts run",
       "request": "launch",
       "type": "node-terminal",

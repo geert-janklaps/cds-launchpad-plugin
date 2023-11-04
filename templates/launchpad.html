@@ -5,18 +5,48 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Bookshop</title>
+	<title>Sandbox FLP</title>
 
 	<script>
 		window["sap-ushell-config"] = {
 			defaultRenderer: "fiori2",
+			renderers: {
+				fiori2: {
+					componentData: {
+						config: {
+							enableNotificationsUI: false,
+							enableNotifications: false,
+							enableSearch: false,
+							enablePersonalization: false,
+							enableSetTheme: true,
+							enableSetLanguage: true,
+						},
+					},
+				},
+			},
+			bootstrapPlugins: {
+				RuntimeAuthoringPlugin: {
+					component: "sap.ushell.plugins.rta",
+					config: {
+						validateAppVersion: false,
+					},
+				},
+			},
+			services: {
+				EndUserFeedback: {
+					config: {
+						enabled: false,
+					},
+				},
+			},
 			applications: {}
 		};
 	</script>
 
 	<script id="sap-ushell-bootstrap" src="LIB_URL/test-resources/sap/ushell/bootstrap/sandbox.js"></script>
 	<script id="sap-ui-bootstrap" src="LIB_URL/resources/sap-ui-core.js"
-			data-sap-ui-libs="sap.m, sap.ushell, sap.collaboration, sap.ui.layout"
+			data-sap-ui-flexibilityServices='[{"connector": "LocalStorageConnector"}]'
+            data-sap-ui-libs="sap.m, sap.ui.core, sap.ushell, sap.fe.templates"
 			data-sap-ui-compatVersion="edge"
 			data-sap-ui-theme="THEME"
 			data-sap-ui-frameOptions="allow"
