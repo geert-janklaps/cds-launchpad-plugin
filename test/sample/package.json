@@ -5,8 +5,17 @@
   "repository": "<Add your repository here>",
   "license": "UNLICENSED",
   "private": true,
+  "dependencies": {
+    "cds-launchpad-plugin": "*"
+  },
   "sapux": [
     "app/authors",
     "app/project1"
-  ]
+  ],
+  "cds": {
+    "launchpad": {
+      "basePath": "/$launchpad",
+      "theme": "sap_horizon"
+    }
+  }
 }

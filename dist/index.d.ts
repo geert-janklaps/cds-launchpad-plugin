@@ -7,9 +7,8 @@ export interface LaunchpadConfig {
     locale?: string;
 }
 export declare class cds_launchpad_plugin {
-    setup(options?: LaunchpadConfig): express.Router;
+    setup(): express.Router;
     prepareTemplate(options: LaunchpadConfig): Promise<string>;
     prepareAppConfigJSON(options: LaunchpadConfig): Promise<string>;
-    addLinkToIndexHtml(service: any, apiPath: string): void;
 }
 //# sourceMappingURL=index.d.ts.map

@@ -1,5 +1,7 @@
 import * as express from 'express';
 import * as fs from 'fs';
+import * as fsAsync from 'fs/promises'
+import * as appindex from '@sap/cds/app/index'
 //import * as cds from '@sap/cds-dk';
 import { parse, parseLines, stringify } from 'dot-properties';
 const cds = require('@sap/cds-dk');
@@ -14,9 +16,12 @@ export interface LaunchpadConfig {
 }
 
 export class cds_launchpad_plugin{
-  setup (options?: LaunchpadConfig): express.Router{
-    options = options !== undefined ? options : {};
-    options = options.basePath !== undefined ? options : Object.assign({ basePath:'/$launchpad' }, options);
+  setup (): express.Router{
+    if (process.env.NODE_ENV === 'production') {
+      cdsLaunchpadLogger.debug('Sandbox launchpad not initialized as the process runs in production ')
+      return
+    }
+    let options: LaunchpadConfig = cds.env.launchpad;
     const router = express.Router();
 
     cds.on('serving', async (service) => {
@@ -33,24 +38,46 @@ export class cds_launchpad_plugin{
         // debugger;
         response.send(await this.prepareAppConfigJSON(options));
       });
-
-      this.addLinkToIndexHtml(service, apiPath)
+      const componentPreloadCache = new Map()
+      const _componentPreload = async (appName: String) => {
+        if (componentPreloadCache.get(appName)) return componentPreloadCache.get(appName)
+        const [manifest, component] = await Promise.all([
+          fsAsync.readFile(cds.root + '/app/' + appName + '/webapp/manifest.json'),
+          fsAsync.readFile(cds.root + '/app/' + appName + '/webapp/Component.js')
+        ])
+        const componentPreload =  `//@ui5-bundle preview/Component-preload.js
+        jQuery.sap.registerPreloadedModules({
+        "version":"2.0",
+        "modules":{
+          "preview/Component.js": function(){${component.toString()}
+        },
+          "preview/manifest.json":${manifest.toString()}
+        }});`
+        componentPreloadCache.set(appName, componentPreload)
+        return componentPreload
+      }
+      router.get('/:app/webapp/Component-preload.js', async ({ params }, resp) => resp.send(await _componentPreload(params.app)))
     });
+
+    router.get('/', (req, res, next) => {
+      const html = appindex.html.replace(/<h2> Web Applications: <\/h2>/, `<h2><b><a href="${options.basePath}">Sandbox Launchpad</a></b></h2><h2>Web Applications: </h2>`)
+      res.send(html)
+    })
 
     return router;
   }
 
   async prepareTemplate(options: LaunchpadConfig): Promise<string>{
     let url = `https://sapui5.hana.ondemand.com`;
-    const theme = options.theme ? options.theme : "sap_fiori_3";
     const htmltemplate = fs.readFileSync(__dirname + '/../templates/launchpad.html').toString();
-
-    if(options.version !== undefined && options.version !== ''){
+    if (options.version && options.version.startsWith('https://')) {
+      url = options.version
+    } else if(options.version !== undefined && options.version !== ''){
       url = url + '/' + options.version;
     }
 
     return htmltemplate.replace(/LIB_URL/g, url)
-                       .replace(/THEME/g, theme);
+                       .replace(/THEME/g, options.theme);
   }
 
   async prepareAppConfigJSON(options: LaunchpadConfig): Promise<string> {
@@ -154,13 +181,5 @@ export class cds_launchpad_plugin{
     }
 
     return config;
-  }
-
-  addLinkToIndexHtml(service, apiPath: string) {
-    const provider = (entity) => {
-      if (entity)  return // avoid link on entity level, looks too messy
-      return { href:apiPath, name:'Launchpad', title:'Fiori Launchpad' }
-    }
-    service.$linkProviders ? service.$linkProviders.push(provider) : service.$linkProviders = [provider]
   }
 }
