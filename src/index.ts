@@ -42,8 +42,8 @@ export class cds_launchpad_plugin{
       const _componentPreload = async (appName: String) => {
         if (componentPreloadCache.get(appName)) return componentPreloadCache.get(appName)
         const [manifest, component] = await Promise.all([
-          fsAsync.readFile(cds.root + '/app/' + appName + '/webapp/manifest.json'),
-          fsAsync.readFile(cds.root + '/app/' + appName + '/webapp/Component.js')
+          fsAsync.readFile(cds.root + '/' + cds.env.folders.app + appName + '/webapp/manifest.json'),
+          fsAsync.readFile(cds.root + '/' + cds.env.folders.app + appName + '/webapp/Component.js')
         ])
         const componentPreload =  `//@ui5-bundle preview/Component-preload.js
         jQuery.sap.registerPreloadedModules({
@@ -98,7 +98,7 @@ export class cds_launchpad_plugin{
       const applications = {};
 
       packagejson.sapux.forEach(element => {
-        const manifest = JSON.parse(fs.readFileSync(cds.root + '/' + element + '/webapp/manifest.json' ).toString());
+        const manifest = JSON.parse(fs.readFileSync(cds.root + '/' + cds.env.folders.app + element.replace(cds.env.folders.app, '') + '/webapp/manifest.json' ).toString());
         const appId = manifest["sap.app"].id;
 
         if (manifest["sap.flp"]?.type === 'plugin') {
@@ -114,7 +114,7 @@ export class cds_launchpad_plugin{
         }
 
         let i18nsetting = manifest["sap.app"].i18n;
-        let i18nPath = cds.root + '/' + element + '/webapp/';
+        let i18nPath = cds.root + '/' + cds.env.folders.app + element.replace(cds.env.folders.app, '') + '/webapp/';
         if(typeof(i18nsetting) === "object") {
           if(manifest._version < "1.21.0") {
             cdsLaunchpadLogger.error(`manifest.json version of ${element} does not allow i18n being an object. Minumum version 1.21.0.`)
