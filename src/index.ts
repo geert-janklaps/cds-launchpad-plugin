@@ -60,8 +60,16 @@ export class cds_launchpad_plugin{
     });
 
     router.get('/', (req, res, next) => {
-      const html = appindex.html.replace(/<h2> Web Applications: <\/h2>/, `<h2><b><a href="${options.basePath}">Sandbox Launchpad</a></b></h2><h2>Web Applications: </h2>`)
-      res.send(html)
+      // store the references to the origin response methods
+      const { writeHead, end } = res;
+
+      res.end = function(content: any, encoding: string): void {
+          const htmlContent = content.replace(/<h2> Web Applications: <\/h2>/, `<h2><b><a href="${options.basePath}">Sandbox Launchpad</a></b></h2><h2>Web Applications: </h2>`);
+          // the rest is on express
+          end.call(res, htmlContent, encoding);
+      } as any;
+
+      next();
     })
 
     return router;
