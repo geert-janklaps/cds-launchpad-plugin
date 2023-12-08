@@ -27,7 +27,6 @@ exports.cds_launchpad_plugin = void 0;
 const express = __importStar(require("express"));
 const fs = __importStar(require("fs"));
 const fsAsync = __importStar(require("fs/promises"));
-const appindex = __importStar(require("@sap/cds/app/index"));
 //import * as cds from '@sap/cds-dk';
 const dot_properties_1 = require("dot-properties");
 const cds = require('@sap/cds-dk');
@@ -74,8 +73,14 @@ class cds_launchpad_plugin {
             router.get('/:app/webapp/Component-preload.js', async ({ params }, resp) => resp.send(await _componentPreload(params.app)));
         });
         router.get('/', (req, res, next) => {
-            const html = appindex.html.replace(/<h2> Web Applications: <\/h2>/, `<h2><b><a href="${options.basePath}">Sandbox Launchpad</a></b></h2><h2>Web Applications: </h2>`);
-            res.send(html);
+            // store the references to the origin response methods
+            const { end } = res;
+            res.end = function (content, encoding) {
+                // Manipulate index page to include Sandbox Launchpad link
+                const htmlContent = content.replace(/<h2> Web Applications: <\/h2>/, `<h2><b><a href="${options.basePath}">Sandbox Launchpad</a></b></h2><h2>Web Applications: </h2>`);
+                end.call(res, htmlContent, encoding);
+            };
+            next();
         });
         return router;
     }
@@ -146,7 +151,9 @@ class cds_launchpad_plugin {
                         }
                     });
                     // App URL
-                    const url = `/${element.replace(cds.env.folders.app, '')}/webapp`;
+                    // Taking into account the use of cds-plugin-ui5 -> only the default route based on the component is supported for now
+                    // If no cds-plugin-ui5 loaded -> use default CAP routes (component/webapp)
+                    const url = cds.env.plugins['cds-plugin-ui5'] ? `/${element.replace(cds.env.folders.app, '')}` : `/${element.replace(cds.env.folders.app, '')}/webapp`;
                     const component = `SAPUI5.Component=${appId}`;
                     // App tile template
                     config.services.LaunchPage.adapter.config.groups[0].tiles.push({
