@@ -74,10 +74,10 @@ class cds_launchpad_plugin {
         });
         router.get('/', (req, res, next) => {
             // store the references to the origin response methods
-            const { writeHead, end } = res;
+            const { end } = res;
             res.end = function (content, encoding) {
+                // Manipulate index page to include Sandbox Launchpad link
                 const htmlContent = content.replace(/<h2> Web Applications: <\/h2>/, `<h2><b><a href="${options.basePath}">Sandbox Launchpad</a></b></h2><h2>Web Applications: </h2>`);
-                // the rest is on express
                 end.call(res, htmlContent, encoding);
             };
             next();
