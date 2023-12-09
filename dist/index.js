@@ -90,7 +90,7 @@ class cds_launchpad_plugin {
     }
     async prepareTemplate(options) {
         let url = `https://sapui5.hana.ondemand.com`;
-        let template = options.template === 'legacy' || options.template === undefined ? 'legacy' : options.template;
+        let template = options.template === 'legacy' || options.template === '' || options.template === undefined ? 'legacy' : options.template;
         const htmltemplate = fs.readFileSync(__dirname + `/../templates/${template}/launchpad.html`).toString();
         if (options.version && options.version.startsWith('https://')) {
             url = options.version;
@@ -102,7 +102,7 @@ class cds_launchpad_plugin {
             .replace(/THEME/g, options.theme);
     }
     async prepareAppConfigJSON(options) {
-        let template = options.template === 'legacy' || options.template === undefined ? 'legacy' : options.template;
+        let template = options.template === 'legacy' || options.template === '' || options.template === undefined ? 'legacy' : options.template;
         // Read app config template
         const config = JSON.parse(fs.readFileSync(__dirname + `/../templates/${template}/appconfig.json`).toString());
         // Read externally provided config 
