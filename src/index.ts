@@ -12,7 +12,8 @@ export interface LaunchpadConfig {
   theme?: string,
   basePath?: string,
   appConfigPath?: string,
-  locale?: string // TODO if it was possible to get sap-ui-language from request which retrieves the app config json, we wouldnt need this option
+  locale?: string, // TODO if it was possible to get sap-ui-language from request which retrieves the app config json, we wouldnt need this option
+  template?: string
 }
 
 export class cds_launchpad_plugin{
@@ -29,15 +30,19 @@ export class cds_launchpad_plugin{
       const mount = apiPath.replace('$','[\\$]')
       cdsLaunchpadLogger._debug && cdsLaunchpadLogger.debug ('serving launchpad for ', {service: service.name, at: apiPath})
 
+      // Mount path for launchpad page
       router.use(mount, async (request: express.Request, response: express.Response, next) => {
         response.send(await this.prepareTemplate(options));
         //next();
       });
 
+      // Mount path for launchpad sandbox configuration
       router.use('/appconfig/fioriSandboxConfig.json', async (request, response, next) => {
         // debugger;
         response.send(await this.prepareAppConfigJSON(options));
       });
+
+      // Component preload generation
       const componentPreloadCache = new Map()
       const _componentPreload = async (appName: String) => {
         if (componentPreloadCache.get(appName)) return componentPreloadCache.get(appName)
@@ -59,6 +64,7 @@ export class cds_launchpad_plugin{
       router.get('/:app/webapp/Component-preload.js', async ({ params }, resp) => resp.send(await _componentPreload(params.app)))
     });
 
+    // Modify default CAP index page (add launchpad link)
     router.get('/', (req, res, next) => {
       // store the references to the origin response methods
       const { end } = res;
@@ -77,7 +83,8 @@ export class cds_launchpad_plugin{
 
   async prepareTemplate(options: LaunchpadConfig): Promise<string>{
     let url = `https://sapui5.hana.ondemand.com`;
-    const htmltemplate = fs.readFileSync(__dirname + '/../templates/launchpad.html').toString();
+    let template = options.template === 'legacy' || options.template === '' || options.template === undefined ? 'legacy' : options.template;
+    const htmltemplate = fs.readFileSync(__dirname + `/../templates/${template}/launchpad.html`).toString();
     if (options.version && options.version.startsWith('https://')) {
       url = options.version
     } else if(options.version !== undefined && options.version !== ''){
@@ -89,8 +96,10 @@ export class cds_launchpad_plugin{
   }
 
   async prepareAppConfigJSON(options: LaunchpadConfig): Promise<string> {
+    let template = options.template === 'legacy' || options.template === '' || options.template === undefined ? 'legacy' : options.template;
+
     // Read app config template
-    const config = JSON.parse(fs.readFileSync(__dirname + '/../templates/appconfig.json').toString());
+    const config = JSON.parse(fs.readFileSync(__dirname + `/../templates/${template}/appconfig.json`).toString());
 
     // Read externally provided config 
     const extConfig = options.appConfigPath ? JSON.parse(fs.readFileSync(options.appConfigPath).toString()) : {};

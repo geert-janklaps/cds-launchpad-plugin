@@ -43,14 +43,17 @@ class cds_launchpad_plugin {
             const apiPath = options.basePath;
             const mount = apiPath.replace('$', '[\\$]');
             cdsLaunchpadLogger._debug && cdsLaunchpadLogger.debug('serving launchpad for ', { service: service.name, at: apiPath });
+            // Mount path for launchpad page
             router.use(mount, async (request, response, next) => {
                 response.send(await this.prepareTemplate(options));
                 //next();
             });
+            // Mount path for launchpad sandbox configuration
             router.use('/appconfig/fioriSandboxConfig.json', async (request, response, next) => {
                 // debugger;
                 response.send(await this.prepareAppConfigJSON(options));
             });
+            // Component preload generation
             const componentPreloadCache = new Map();
             const _componentPreload = async (appName) => {
                 if (componentPreloadCache.get(appName))
@@ -72,6 +75,7 @@ class cds_launchpad_plugin {
             };
             router.get('/:app/webapp/Component-preload.js', async ({ params }, resp) => resp.send(await _componentPreload(params.app)));
         });
+        // Modify default CAP index page (add launchpad link)
         router.get('/', (req, res, next) => {
             // store the references to the origin response methods
             const { end } = res;
@@ -86,7 +90,8 @@ class cds_launchpad_plugin {
     }
     async prepareTemplate(options) {
         let url = `https://sapui5.hana.ondemand.com`;
-        const htmltemplate = fs.readFileSync(__dirname + '/../templates/launchpad.html').toString();
+        let template = options.template === 'legacy' || options.template === '' || options.template === undefined ? 'legacy' : options.template;
+        const htmltemplate = fs.readFileSync(__dirname + `/../templates/${template}/launchpad.html`).toString();
         if (options.version && options.version.startsWith('https://')) {
             url = options.version;
         }
@@ -97,8 +102,9 @@ class cds_launchpad_plugin {
             .replace(/THEME/g, options.theme);
     }
     async prepareAppConfigJSON(options) {
+        let template = options.template === 'legacy' || options.template === '' || options.template === undefined ? 'legacy' : options.template;
         // Read app config template
-        const config = JSON.parse(fs.readFileSync(__dirname + '/../templates/appconfig.json').toString());
+        const config = JSON.parse(fs.readFileSync(__dirname + `/../templates/${template}/appconfig.json`).toString());
         // Read externally provided config 
         const extConfig = options.appConfigPath ? JSON.parse(fs.readFileSync(options.appConfigPath).toString()) : {};
         // merge the two

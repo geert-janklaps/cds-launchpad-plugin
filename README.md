@@ -1,5 +1,5 @@
 # cds-launchpad-plugin
-Launchpad Plugin for demo / development / testing SAP CAP-based projects
+Launchpad Plugin for demo / development / testing SAP Cloud Application Programming Model-based projects
 
 ## Installation
 
@@ -9,6 +9,32 @@ npm install --save-dev cds-launchpad-plugin
 ```
 
 ## Usage
+
+### SAP Cloud Application Programming (CAP) Model 6.7.0 or higher
+
+The cds-launchpad-plugin is using the SAP Cloud Application Programming Model plugin technique. 
+Installing the plugin as a dev dependency (see installation) is sufficient to enable the plugin automatically.
+
+#### Configuration
+
+Optionally you can configure the cds-launchpad-plugin by adding following configuration to your package.json file.
+
+```jsonc
+"cds": {
+  "launchpad": {
+    theme:'sap_horizon', // SAPUI5 Theme
+    version: '1.120.1', // SAPUI5 Version
+    basePath: '', // Path under which you want the sandbox to be served
+    appConfigPath: '', // External sandbox appconfig json file to be merged with generated appconfig
+    locale: '', // Language to be used for the sandbox environment
+    template: '' // 'legacy' (non-async launchpad, default) or 'async' (async launchpad)
+  }
+}
+```
+
+The sandbox launchpad will be served on `/$launchpad`, like http://localhost:4004/$launchpad
+
+### SAP Cloud Application Programming (CAP) Model 6.7.0 or lower
 
 Have this in your [`server.js`](https://cap.cloud.sap/docs/node.js/cds-server#custom-server-js):
 
@@ -27,14 +53,14 @@ if (cds.env.production === false){
     // Enable launchpad plugin
     cds.once('bootstrap',(app)=>{
         const handler = new cds_launchpad_plugin();
-        app.use(handler.setup({theme:'sap_horizon', version: '1.99.0'}));
+        app.use(handler.setup({theme:'sap_horizon', version: '1.120.1'}));
     });
 }
 ```
 
 The sandbox launchpad will be served on `/$launchpad`, like http://localhost:4004/$launchpad
 
-## Configuration
+#### Configuration
 
 Call `setup({...})` method with the following object (configuration object can be omitted):
 ```jsonc
@@ -43,7 +69,8 @@ Call `setup({...})` method with the following object (configuration object can b
   version: '1.99.0', // SAPUI5 Version
   basePath: '', // Path under which you want the sandbox to be served
   appConfigPath: '', // External sandbox appconfig json file to be merged with generated appconfig
-  locale: '' // Language to be used for the sandbox environment
+  locale: '', // Language to be used for the sandbox environment
+  template: '' // 'legacy' (non-async launchpad) or 'async' (async launchpad)
 }
 ```
 
