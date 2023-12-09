@@ -52,8 +52,7 @@
         };
     </script>
 
-<script defer id="sap-ushell-bootstrap" src="LIB_URL/test-resources/sap/ushell/shells/sandbox/fioriSandboxInitialConfig.js"></script>
-<script id="sap-ushell-bootstrap" src="LIB_URL/test-resources/sap/ushell/bootstrap/sandbox.js"></script>
+<script defer id="sap-ushell-bootstrap" src="LIB_URL/resources/sap/ushell/bootstrap/sandbox2.js"></script>
 <script defer id="sap-ui-bootstrap"
         src="LIB_URL/resources/sap-ui-core.js"
         data-sap-ui-compatVersion="edge"
@@ -63,11 +62,11 @@
         data-sap-ui-flexibilityServices='[{"connector": "LocalStorageConnector"}]'
         data-sap-ui-oninit="module:sap/ushell/shells/sandbox/fioriSandboxInit"
         data-sap-ui-resourceroots='{
-            "sap.ushell.shells.sandbox": "LIB_URL/test-resources/sap/ushell/shells/sandbox/"
+            "sap.ushell.shells.sandbox": "LIB_URL/test-resources/sap/ushell/shells/sandbox2/"
         }'></script>
 </head>
-<body class="sapUiBody sapUShellFullHeight">
-    <div id="canvas" class="sapUShellFullHeight"></div>
+<body class="sapUiBody">
+<div id="canvas"></div>
 </body>
 
 </html>
