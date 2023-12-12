@@ -22,12 +22,12 @@ Optionally you can configure the cds-launchpad-plugin by adding following config
 ```jsonc
 "cds": {
   "launchpad": {
-    theme:'sap_horizon', // SAPUI5 Theme
-    version: '1.120.1', // SAPUI5 Version
-    basePath: '', // Path under which you want the sandbox to be served
-    appConfigPath: '', // External sandbox appconfig json file to be merged with generated appconfig
-    locale: '', // Language to be used for the sandbox environment
-    template: '' // 'legacy' (non-async launchpad, default) or 'async' (async launchpad)
+    "theme":"sap_horizon", // SAPUI5 Theme
+    "version": "1.120.1", // SAPUI5 Version
+    "basePath": "", // Path under which you want the sandbox to be served
+    "appConfigPath": "", // External sandbox appconfig json file to be merged with generated appconfig
+    "locale": "", // Language to be used for the sandbox environment
+    "template": "" // 'legacy' (non-async launchpad, default) or 'async' (async launchpad)
   }
 }
 ```
