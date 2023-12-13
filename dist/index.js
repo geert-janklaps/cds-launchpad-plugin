@@ -81,6 +81,9 @@ class cds_launchpad_plugin {
             const { end } = res;
             res.end = function (content, encoding) {
                 // Manipulate index page to include Sandbox Launchpad link
+                if (typeof content !== 'string') {
+                    content = content.toString();
+                }
                 const htmlContent = content.replace(/<h2> Web Applications: <\/h2>/, `<h2><b><a href="${options.basePath}">Sandbox Launchpad</a></b></h2><h2>Web Applications: </h2>`);
                 end.call(res, htmlContent, encoding);
             };
@@ -159,7 +162,10 @@ class cds_launchpad_plugin {
                     // App URL
                     // Taking into account the use of cds-plugin-ui5 -> only the default route based on the component is supported for now
                     // If no cds-plugin-ui5 loaded -> use default CAP routes (component/webapp)
-                    const url = cds.env.plugins['cds-plugin-ui5'] ? `/${element.replace(cds.env.folders.app, '')}` : `/${element.replace(cds.env.folders.app, '')}/webapp`;
+                    let url = `/${element.replace(cds.env.folders.app, '')}/webapp`;
+                    if (cds.env?.plugins !== undefined && cds.env?.plugins['cds-plugin-ui5']) {
+                        url = `/${element.replace(cds.env.folders.app, '')}`;
+                    }
                     const component = `SAPUI5.Component=${appId}`;
                     // App tile template
                     config.services.LaunchPage.adapter.config.groups[0].tiles.push({
