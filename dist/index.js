@@ -164,7 +164,8 @@ class cds_launchpad_plugin {
                     // If no cds-plugin-ui5 loaded -> use default CAP routes (component/webapp)
                     let url = `/${element.replace(cds.env.folders.app, '')}/webapp`;
                     if (cds.env?.plugins !== undefined && cds.env?.plugins['cds-plugin-ui5']) {
-                        url = `/${element.replace(cds.env.folders.app, '')}`;
+                        //url =  `/${element.replace(cds.env.folders.app, '')}`
+                        url = `/${appId}`; //cds-plugin-ui5 uses the appid as default route (combination namespace + component)
                     }
                     const component = `SAPUI5.Component=${appId}`;
                     // App tile template
