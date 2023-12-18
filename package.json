@@ -1,6 +1,6 @@
 {
   "name": "cds-launchpad-plugin",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Launchpad Plugin for demo / development / testing SAP CAP-based projects",
   "main": "dist/index.js",
   "types": "dist/index",

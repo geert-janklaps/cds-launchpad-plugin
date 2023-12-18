@@ -45,8 +45,12 @@ class cds_launchpad_plugin {
             cdsLaunchpadLogger._debug && cdsLaunchpadLogger.debug('serving launchpad for ', { service: service.name, at: apiPath });
             // Mount path for launchpad page
             router.use(mount, async (request, response, next) => {
-                response.send(await this.prepareTemplate(options));
-                //next();
+                if (request.originalUrl === options.basePath) {
+                    response.send(await this.prepareTemplate(options));
+                }
+                else {
+                    next();
+                }
             });
             // Mount path for launchpad sandbox configuration
             router.use('/appconfig/fioriSandboxConfig.json', async (request, response, next) => {
