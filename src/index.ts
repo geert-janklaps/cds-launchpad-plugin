@@ -85,7 +85,7 @@ export class cds_launchpad_plugin{
   }
 
   async prepareTemplate(options: LaunchpadConfig): Promise<string>{
-    let url = `https://sapui5.hana.ondemand.com`;
+    let url = `https://ui5.sap.com`;
     let template = options.template === 'legacy' || options.template === '' || options.template === undefined ? 'legacy' : options.template;
     const htmltemplate = fs.readFileSync(__dirname + `/../templates/${template}/launchpad.html`).toString();
     if (options.version && options.version.startsWith('https://')) {
