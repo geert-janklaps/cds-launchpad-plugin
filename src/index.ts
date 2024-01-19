@@ -178,25 +178,27 @@ export class cds_launchpad_plugin{
           }
           const component = `SAPUI5.Component=${appId}`;
 
-          // App tile template
-          config.services.LaunchPage.adapter.config.groups[0].tiles.push({
-            id: tileId, 
-            properties: Object.assign({ 
-              targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`, 
-              title: tileconfig.title,
-              info: tileconfig.info,
-              subtitle: tileconfig.subTitle,
-              icon: tileconfig.icon
-            }, tileconfig.indicatorDataSource ? {
-              serviceUrl: manifest["sap.app"].dataSources[tileconfig.indicatorDataSource.dataSource].uri + tileconfig.indicatorDataSource.path
-            } : {} ), 
-            tileType: tileconfig.indicatorDataSource ? 'sap.ushell.ui.tile.DynamicTile' : 'sap.ushell.ui.tile.StaticTile',
-            serviceRefreshInterval: (tileconfig.indicatorDataSource && tileconfig.indicatorDataSource.refresh || 10) // defautl 10 sec
-            // multiplying by a large number basically means "never refresh" - this can stay this way as long as
-            // its not supported by the local adapter, see sap.ushell.adapters.local.LaunchPageAdapter, private function handleTileServiceCall,
-            // which does the service calls correctly and regularly, but doesnt update the tiles
-            * 1000 
-          });
+          // App tile template - if not hidden from launchpad
+          if (!tileconfig?.hideLauncher) {
+            config.services.LaunchPage.adapter.config.groups[0].tiles.push({
+              id: tileId, 
+              properties: Object.assign({ 
+                targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`, 
+                title: tileconfig.title,
+                info: tileconfig.info,
+                subtitle: tileconfig.subTitle,
+                icon: tileconfig.icon
+              }, tileconfig.indicatorDataSource ? {
+                serviceUrl: manifest["sap.app"].dataSources[tileconfig.indicatorDataSource.dataSource].uri + tileconfig.indicatorDataSource.path
+              } : {} ), 
+              tileType: tileconfig.indicatorDataSource ? 'sap.ushell.ui.tile.DynamicTile' : 'sap.ushell.ui.tile.StaticTile',
+              serviceRefreshInterval: (tileconfig.indicatorDataSource && tileconfig.indicatorDataSource.refresh || 10) // defautl 10 sec
+              // multiplying by a large number basically means "never refresh" - this can stay this way as long as
+              // its not supported by the local adapter, see sap.ushell.adapters.local.LaunchPageAdapter, private function handleTileServiceCall,
+              // which does the service calls correctly and regularly, but doesnt update the tiles
+              * 1000 
+            });
+          }
 
           config.services.ClientSideTargetResolution.adapter.config.inbounds[tileId] = tileconfig;
           config.services.ClientSideTargetResolution.adapter.config.inbounds[tileId].resolutionResult = {
