@@ -6,7 +6,9 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "cds-launchpad-plugin": "*"
+    "cds-launchpad-plugin": "*",
+    "cds-plugin-ui5": "0.8.0",
+    "books" : "*"
   },
   "sapux": [
     "app/authors",
