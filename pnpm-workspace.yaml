@@ -1,4 +1,7 @@
 packages:
   - "."
   - "test/cds-plugin-ui5/packages/*"
+  - "test/cds-plugin-ui5/packages/cap-server/app/uimodule"
+  - "test/cds-plugin-ui5-deps/packages/*"
   - "test/sapux/packages/*"
+  - "test/http"

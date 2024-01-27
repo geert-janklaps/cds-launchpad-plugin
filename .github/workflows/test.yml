@@ -1,0 +1,58 @@
+name: wdi5 tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-wdi5:
+    runs-on: ubuntu-latest
+    if: "github.event.pull_request.title != 'chore: release main'"
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: use pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: use node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: pnpm install
+        run: |
+          npm pkg delete scripts.prepare
+          pnpm install --no-frozen-lockfile
+
+      - name: Run Build
+        run: pnpm prepublish
+
+      - name: install @sap/cds-dk
+        run: |
+          npm i -g @sap/cds-dk
+
+      - name: start both cap server
+        run: |
+          pnpm dev:cdspluginui5&
+          pnpm dev:cdspluginui5deps&
+          pnpm dev:sapux&
+
+      - name: wait for server
+        run: |
+          while ! nc -z localhost 4004; do sleep 0.1; done
+          while ! nc -z localhost 4005; do sleep 0.1; done
+          while ! nc -z localhost 4006; do sleep 0.1; done
+      
+      - name: run tests
+        run: |
+          pnpm test

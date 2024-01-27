@@ -6,6 +6,8 @@ server:
   customMiddleware:
     - name: fiori-tools-appreload
       afterMiddleware: compression
+      configuration:
+        port: 35730
     - name: ui5-tooling-transpile-middleware
       afterMiddleware: compression
       configuration:
