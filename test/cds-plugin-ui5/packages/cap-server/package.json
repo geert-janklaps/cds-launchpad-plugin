@@ -19,7 +19,7 @@
     "uimodule": "*"
   },
   "scripts": {
-    "start": "cds-serve",
+    "start": "cds-serve --port 4005",
     "dev": "cds watch"
   },
   "cds": {

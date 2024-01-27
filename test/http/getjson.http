@@ -1,1 +1,5 @@
+# sapux
 GET http://localhost:4004/appconfig/fioriSandboxConfig.json
+
+## cds-plugin-ui5
+GET http://localhost:4005/appconfig/fioriSandboxConfig.json
