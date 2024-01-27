@@ -1,5 +1,5 @@
 {
-  "name": "cap-server-cds-plugin-ui5",
+  "name": "cap-server-cds-plugin-ui5-deps",
   "version": "1.0.0",
   "description": "A simple CAP project.",
   "repository": "<Add your repository here>",
@@ -15,10 +15,11 @@
   "devDependencies": {
     "@cap-js/sqlite": "^1",
     "cds-plugin-ui5": "0.8.0",
-    "cds-launchpad-plugin": "*"
+    "cds-launchpad-plugin": "*",
+    "uimodule": "*"
   },
   "scripts": {
-    "start": "cds-serve --port 4006",
+    "start": "cds-serve --port 4005",
     "dev": "cds watch"
   },
   "cds": {
@@ -37,8 +38,5 @@
         }
       }
     }
-  },
-  "sapux" : [
-    "app/uimodule"
-  ]
+  }
 }
