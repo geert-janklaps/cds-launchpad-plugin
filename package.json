@@ -24,8 +24,7 @@
     "cap",
     "launchpad",
     "fiori",
-    "sapui5",
-    "openui5"
+    "sapui5"
   ],
   "author": "Geert-Jan Klaps",
   "license": "MIT",
