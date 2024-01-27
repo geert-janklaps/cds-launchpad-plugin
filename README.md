@@ -79,3 +79,20 @@ Call `setup({...})` method with the following object (configuration object can b
 Solution overview: https://blogs.sap.com/2022/03/14/a-fiori-launchpad-sandbox-for-all-your-cap-based-projects-overview/
 
 Sample project setup: https://blogs.sap.com/2022/03/14/a-fiori-launchpad-sandbox-for-all-your-cap-based-projects-sample-project-setup/
+
+## Development
+
+### Prerequisites
+- node 18
+- pnpm
+
+### Setup
+```sh
+git clone https://github.com/geert-janklaps/cds-launchpad-plugin
+cd cds-launchpad-plugin
+pnpm install
+pnpm watch
+# run cds server
+pnpm dev:sapux
+# go to http://localhost:4004/$launchpad
+```
