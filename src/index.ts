@@ -125,7 +125,7 @@ export class cds_launchpad_plugin{
 				paths: [cwd],
 			});
       let fullPath = manifestPath.replace(/manifest\.json$/, '');
-      const object = { type: 'app', path: fullPath };
+      const object = { type: 'app', webappPath: fullPath, name: appDir};
       depsPaths.push(object);
     });
     return { appDirs, cwd, depsPaths };
@@ -145,19 +145,24 @@ export class cds_launchpad_plugin{
 
     // Read CDS project package
     const packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
-    const { appDirs, cwd, depsPaths } = this.getAppsFromDependencies(packagejson);
+    let depsPaths = [];
+    try {
+      ({ depsPaths } = this.getAppsFromDependencies(packagejson));
+    } catch (error) {
+      cdsLaunchpadLogger.error(`Error while reading dependencies: ${error}`);
+    }
 
     if(Array.isArray(packagejson.sapux)){
       packagejson.sapux.forEach(element => {
-        const object = {type : 'sapux', path: element};
+        const webappPath = ( cds.root + '/' + cds.env.folders.app + element.replace(cds.env.folders.app, '') + '/webapp/').toString();
+        const object = {type : 'sapux', name: element, webappPath: webappPath};
         depsPaths.push(object);
       });
     }
 
-
     // Read manifest files for each UI project that is defined in the project package
       depsPaths.forEach(element => {
-        const manifest = JSON.parse(fs.readFileSync(cds.root + '/' + cds.env.folders.app + element.path.replace(cds.env.folders.app, '') + '/webapp/manifest.json' ).toString());
+        const manifest = JSON.parse(fs.readFileSync(element.webappPath + 'manifest.json', 'utf8'));
         const appId = manifest["sap.app"].id;
 
         if (manifest["sap.flp"]?.type === 'plugin') {
@@ -173,10 +178,10 @@ export class cds_launchpad_plugin{
         }
 
         let i18nsetting = manifest["sap.app"].i18n;
-        let i18nPath = cds.root + '/' + cds.env.folders.app + element.path.replace(cds.env.folders.app, '') + '/webapp/';
+        let i18nPath = element.webappPath;
         if(typeof(i18nsetting) === "object") {
           if(manifest._version < "1.21.0") {
-            cdsLaunchpadLogger.error(`manifest.json version of ${element.path} does not allow i18n being an object. Minumum version 1.21.0.`)
+            cdsLaunchpadLogger.error(`manifest.json version of ${element.name} does not allow i18n being an object. Minumum version 1.21.0.`)
           }
           i18nPath += i18nsetting.bundleUrl;
         } else {
@@ -207,7 +212,7 @@ export class cds_launchpad_plugin{
           // App URL
           // Taking into account the use of cds-plugin-ui5 -> only the default route based on the component is supported for now
           // If no cds-plugin-ui5 loaded -> use default CAP routes (component/webapp)
-          let url = `/${element.path.replace(cds.env.folders.app, '')}/webapp`;
+          let url = `/${element.name.replace(cds.env.folders.app, '')}/webapp`;
           if (cds.env?.plugins !== undefined && cds.env?.plugins['cds-plugin-ui5']) {
             //url =  `/${element.path.replace(cds.env.folders.app, '')}`
             url = `/${appId}`; //cds-plugin-ui5 uses the appid as default route (combination namespace + component)
