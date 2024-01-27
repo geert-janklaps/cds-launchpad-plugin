@@ -26,6 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.cds_launchpad_plugin = void 0;
 const express = __importStar(require("express"));
 const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
 const fsAsync = __importStar(require("fs/promises"));
 //import * as cds from '@sap/cds-dk';
 const dot_properties_1 = require("dot-properties");
@@ -108,6 +109,33 @@ class cds_launchpad_plugin {
         return htmltemplate.replace(/LIB_URL/g, url)
             .replace(/THEME/g, options.theme);
     }
+    getAppsFromDependencies(packagejson) {
+        const appDirs = [], deps = [], depsPaths = [];
+        deps.push(...Object.keys(packagejson.dependencies || {}));
+        deps.push(...Object.keys(packagejson.devDependencies || {}));
+        const cwd = process.cwd();
+        appDirs.push(...deps.filter((dep) => {
+            try {
+                require.resolve(path.join(dep, "webapp/manifest.json"), {
+                    paths: [cwd],
+                });
+                return true;
+            }
+            catch (e) {
+                return false;
+            }
+        }));
+        // loop over appDirs and get root path
+        appDirs.forEach((appDir) => {
+            const manifestPath = require.resolve(path.join(appDir, "webapp/manifest.json"), {
+                paths: [cwd],
+            });
+            let fullPath = manifestPath.replace(/manifest\.json$/, '');
+            const object = { type: 'app', webappPath: fullPath, name: appDir };
+            depsPaths.push(object);
+        });
+        return { appDirs, cwd, depsPaths };
+    }
     async prepareAppConfigJSON(options) {
         let template = options.template === 'legacy' || options.template === '' || options.template === undefined ? 'legacy' : options.template;
         // Read app config template
@@ -118,88 +146,99 @@ class cds_launchpad_plugin {
         Object.assign(config, extConfig);
         // Read CDS project package
         const packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
-        // Read manifest files for each UI project that is defined in the project package
+        let depsPaths = [];
+        try {
+            ({ depsPaths } = this.getAppsFromDependencies(packagejson));
+        }
+        catch (error) {
+            cdsLaunchpadLogger.error(`Error while reading dependencies: ${error}`);
+        }
         if (Array.isArray(packagejson.sapux)) {
-            const applications = {};
             packagejson.sapux.forEach(element => {
-                const manifest = JSON.parse(fs.readFileSync(cds.root + '/' + cds.env.folders.app + element.replace(cds.env.folders.app, '') + '/webapp/manifest.json').toString());
-                const appId = manifest["sap.app"].id;
-                if (manifest["sap.flp"]?.type === 'plugin') {
-                    const component = appId;
-                    const name = component.split('.').pop();
-                    config.bootstrapPlugins[name] = {
-                        component,
-                        url: name + "/webapp",
-                        'sap-ushell-plugin-type': 'RendererExtensions',
-                        enabled: true
-                    };
-                    return;
-                }
-                let i18nsetting = manifest["sap.app"].i18n;
-                let i18nPath = cds.root + '/' + cds.env.folders.app + element.replace(cds.env.folders.app, '') + '/webapp/';
-                if (typeof (i18nsetting) === "object") {
-                    if (manifest._version < "1.21.0") {
-                        cdsLaunchpadLogger.error(`manifest.json version of ${element} does not allow i18n being an object. Minumum version 1.21.0.`);
-                    }
-                    i18nPath += i18nsetting.bundleUrl;
-                }
-                else {
-                    i18nPath += i18nsetting;
-                }
-                if (options.locale) {
-                    i18nPath = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`);
-                }
-                const i18n = (0, dot_properties_1.parse)(fs.readFileSync(i18nPath).toString());
-                const tileconfigs = manifest["sap.app"]?.crossNavigation?.inbounds;
-                for (const tileconfigId in tileconfigs) {
-                    const tileconfig = tileconfigs[tileconfigId];
-                    const tileId = `${appId}-${tileconfigId}`;
-                    // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
-                    Object.keys(tileconfig).forEach(key => {
-                        if (['title', 'subTitle', 'info'].includes(key)) {
-                            const strippedValue = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
-                            if (i18n[strippedValue] !== undefined) {
-                                tileconfig[key] = i18n[strippedValue];
-                            }
-                        }
-                    });
-                    // App URL
-                    // Taking into account the use of cds-plugin-ui5 -> only the default route based on the component is supported for now
-                    // If no cds-plugin-ui5 loaded -> use default CAP routes (component/webapp)
-                    let url = `/${element.replace(cds.env.folders.app, '')}/webapp`;
-                    if (cds.env?.plugins !== undefined && cds.env?.plugins['cds-plugin-ui5']) {
-                        //url =  `/${element.replace(cds.env.folders.app, '')}`
-                        url = `/${appId}`; //cds-plugin-ui5 uses the appid as default route (combination namespace + component)
-                    }
-                    const component = `SAPUI5.Component=${appId}`;
-                    // App tile template
-                    config.services.LaunchPage.adapter.config.groups[0].tiles.push({
-                        id: tileId,
-                        properties: Object.assign({
-                            targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`,
-                            title: tileconfig.title,
-                            info: tileconfig.info,
-                            subtitle: tileconfig.subTitle,
-                            icon: tileconfig.icon
-                        }, tileconfig.indicatorDataSource ? {
-                            serviceUrl: manifest["sap.app"].dataSources[tileconfig.indicatorDataSource.dataSource].uri + tileconfig.indicatorDataSource.path
-                        } : {}),
-                        tileType: tileconfig.indicatorDataSource ? 'sap.ushell.ui.tile.DynamicTile' : 'sap.ushell.ui.tile.StaticTile',
-                        serviceRefreshInterval: (tileconfig.indicatorDataSource && tileconfig.indicatorDataSource.refresh || 10) // defautl 10 sec
-                            // multiplying by a large number basically means "never refresh" - this can stay this way as long as
-                            // its not supported by the local adapter, see sap.ushell.adapters.local.LaunchPageAdapter, private function handleTileServiceCall,
-                            // which does the service calls correctly and regularly, but doesnt update the tiles
-                            * 1000
-                    });
-                    config.services.ClientSideTargetResolution.adapter.config.inbounds[tileId] = tileconfig;
-                    config.services.ClientSideTargetResolution.adapter.config.inbounds[tileId].resolutionResult = {
-                        "applicationType": "SAPUI5",
-                        "additionalInformation": component,
-                        "url": url
-                    };
-                }
+                const webappPath = (cds.root + '/' + cds.env.folders.app + element.replace(cds.env.folders.app, '') + '/webapp/').toString();
+                const object = { type: 'sapux', name: element, webappPath: webappPath };
+                depsPaths.push(object);
             });
         }
+        // Read manifest files for each UI project that is defined in the project package
+        depsPaths.forEach(element => {
+            const manifest = JSON.parse(fs.readFileSync(element.webappPath + 'manifest.json', 'utf8'));
+            const appId = manifest["sap.app"].id;
+            if (manifest["sap.flp"]?.type === 'plugin') {
+                const component = appId;
+                const name = component.split('.').pop();
+                config.bootstrapPlugins[name] = {
+                    component,
+                    url: name + "/webapp",
+                    'sap-ushell-plugin-type': 'RendererExtensions',
+                    enabled: true
+                };
+                return;
+            }
+            let i18nsetting = manifest["sap.app"].i18n;
+            let i18nPath = element.webappPath;
+            if (typeof (i18nsetting) === "object") {
+                if (manifest._version < "1.21.0") {
+                    cdsLaunchpadLogger.error(`manifest.json version of ${element.name} does not allow i18n being an object. Minumum version 1.21.0.`);
+                }
+                i18nPath += i18nsetting.bundleUrl;
+            }
+            else {
+                i18nPath += i18nsetting;
+            }
+            if (options.locale) {
+                i18nPath = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`);
+            }
+            const i18n = (0, dot_properties_1.parse)(fs.readFileSync(i18nPath).toString());
+            const tileconfigs = manifest["sap.app"]?.crossNavigation?.inbounds;
+            for (const tileconfigId in tileconfigs) {
+                const tileconfig = tileconfigs[tileconfigId];
+                const tileId = `${appId}-${tileconfigId}`;
+                // Replace potential string templates used for tile title and description (take descriptions from default i18n file)
+                Object.keys(tileconfig).forEach(key => {
+                    if (['title', 'subTitle', 'info'].includes(key)) {
+                        const strippedValue = tileconfig[key].toString().replace(`{{`, ``).replace(`}}`, ``);
+                        if (i18n[strippedValue] !== undefined) {
+                            tileconfig[key] = i18n[strippedValue];
+                        }
+                    }
+                });
+                // App URL
+                // Taking into account the use of cds-plugin-ui5 -> only the default route based on the component is supported for now
+                // If no cds-plugin-ui5 loaded -> use default CAP routes (component/webapp)
+                let url = `/${element.name.replace(cds.env.folders.app, '')}/webapp`;
+                if (cds.env?.plugins !== undefined && cds.env?.plugins['cds-plugin-ui5']) {
+                    //url =  `/${element.path.replace(cds.env.folders.app, '')}`
+                    url = `/${appId}`; //cds-plugin-ui5 uses the appid as default route (combination namespace + component)
+                }
+                const component = `SAPUI5.Component=${appId}`;
+                // App tile template
+                config.services.LaunchPage.adapter.config.groups[0].tiles.push({
+                    id: tileId,
+                    properties: Object.assign({
+                        targetURL: `#${tileconfig.semanticObject}-${tileconfig.action}`,
+                        title: tileconfig.title,
+                        info: tileconfig.info,
+                        subtitle: tileconfig.subTitle,
+                        icon: tileconfig.icon
+                    }, tileconfig.indicatorDataSource ? {
+                        serviceUrl: manifest["sap.app"].dataSources[tileconfig.indicatorDataSource.dataSource].uri + tileconfig.indicatorDataSource.path
+                    } : {}),
+                    tileType: tileconfig.indicatorDataSource ? 'sap.ushell.ui.tile.DynamicTile' : 'sap.ushell.ui.tile.StaticTile',
+                    serviceRefreshInterval: (tileconfig.indicatorDataSource && tileconfig.indicatorDataSource.refresh || 10) // defautl 10 sec
+                        // multiplying by a large number basically means "never refresh" - this can stay this way as long as
+                        // its not supported by the local adapter, see sap.ushell.adapters.local.LaunchPageAdapter, private function handleTileServiceCall,
+                        // which does the service calls correctly and regularly, but doesnt update the tiles
+                        * 1000
+                });
+                config.services.ClientSideTargetResolution.adapter.config.inbounds[tileId] = tileconfig;
+                config.services.ClientSideTargetResolution.adapter.config.inbounds[tileId].resolutionResult = {
+                    "applicationType": "SAPUI5",
+                    "additionalInformation": component,
+                    "url": url
+                };
+            }
+        });
         return config;
     }
 }
