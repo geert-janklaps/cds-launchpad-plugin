@@ -1,7 +1,7 @@
 {
-  "_version": "1.49.0",
+  "_version": "1.59.0",
   "sap.app": {
-    "id": "uimodule",
+    "id": "listofbooks",
     "type": "application",
     "i18n": "i18n/i18n.properties",
     "applicationVersion": {
@@ -12,8 +12,8 @@
     "resources": "resources.json",
     "sourceTemplate": {
       "id": "@sap/generator-fiori:lrop",
-      "version": "1.10.5",
-      "toolsId": "17869e30-3a67-4b85-88b6-07860a3cc60f"
+      "version": "1.12.2",
+      "toolsId": "fef472d7-218f-4cde-9088-d964006a9bef"
     },
     "dataSources": {
       "mainService": {
@@ -21,7 +21,6 @@
         "type": "OData",
         "settings": {
           "annotations": [],
-          "localUri": "localService/metadata.xml",
           "odataVersion": "4.0"
         }
       }
@@ -61,7 +60,7 @@
   "sap.ui5": {
     "flexEnabled": true,
     "dependencies": {
-      "minUI5Version": "1.119.0",
+      "minUI5Version": "1.120.4",
       "libs": {
         "sap.m": {},
         "sap.ui.core": {},
@@ -77,7 +76,7 @@
       "i18n": {
         "type": "sap.ui.model.resource.ResourceModel",
         "settings": {
-          "bundleName": "uimodule.i18n.i18n"
+          "bundleName": "listofbooks.i18n.i18n"
         }
       },
       "": {
@@ -110,6 +109,11 @@
           "pattern": "ListOfBooks({key}):?query:",
           "name": "ListOfBooksObjectPage",
           "target": "ListOfBooksObjectPage"
+        },
+        {
+          "pattern": "ListOfBooks({key})/texts({key2}):?query:",
+          "name": "Books_textsObjectPage",
+          "target": "Books_textsObjectPage"
         }
       ],
       "targets": {
@@ -119,7 +123,7 @@
           "name": "sap.fe.templates.ListReport",
           "options": {
             "settings": {
-              "entitySet": "ListOfBooks",
+              "contextPath": "/ListOfBooks",
               "variantManagement": "Page",
               "navigation": {
                 "ListOfBooks": {
@@ -138,7 +142,25 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "entitySet": "ListOfBooks"
+              "contextPath": "/ListOfBooks",
+              "navigation": {
+                "texts": {
+                  "detail": {
+                    "route": "Books_textsObjectPage"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Books_textsObjectPage": {
+          "type": "Component",
+          "id": "Books_textsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/ListOfBooks/texts"
             }
           }
         }
