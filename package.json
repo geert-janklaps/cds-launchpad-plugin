@@ -6,9 +6,12 @@
   "types": "dist/index",
   "scripts": {
     "dev": "cds-ts run ./test/sample --with-mocks --in-memory?",
+    "dev:cdspluginui5" : "pnpm --filter cap-server-cds-plugin-ui5 start",
+    "dev:sapux" : "pnpm --filter cap-server-sapux start",
     "devold": "ts-node ./test/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "tsc"
+    "prepublish": "tsc",
+    "watch": "tsc -w"
   },
   "repository": {
     "type": "git",
@@ -51,9 +54,5 @@
       "basePath": "/$launchpad",
       "theme": "sap_horizon"
     }
-  },
-  "workspaces": [
-    "test/cds-plugin-ui5/packages/*",
-    "./"
-  ]
+  }
 }

@@ -1,0 +1,4 @@
+packages:
+  - "."
+  - "test/cds-plugin-ui5/packages/*"
+  - "test/sapux/packages/*"
