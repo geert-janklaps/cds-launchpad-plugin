@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  test-wdi5:
+  test:
     runs-on: ubuntu-latest
     if: "github.event.pull_request.title != 'chore: release main'"
     strategy:
