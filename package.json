@@ -1,16 +1,15 @@
 {
   "name": "cds-launchpad-plugin",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "Launchpad Plugin for demo / development / testing SAP CAP-based projects",
   "main": "dist/index.js",
   "types": "dist/index",
   "scripts": {
     "dev": "cds-ts run ./test/sample --with-mocks --in-memory?",
-    "dev:cdspluginui5deps" : "pnpm --filter cap-server-cds-plugin-ui5-deps start",
-    "dev:cdspluginui5" : "pnpm --filter cap-server-cds-plugin-ui5 start",
-    "dev:sapux" : "pnpm --filter cap-server-sapux start",
+    "dev:cdspluginui5deps": "pnpm --filter cap-server-cds-plugin-ui5-deps start",
+    "dev:cdspluginui5": "pnpm --filter cap-server-cds-plugin-ui5 start",
+    "dev:sapux": "pnpm --filter cap-server-sapux start",
     "devold": "ts-node ./test/server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "tsc",
     "watch": "tsc -w",
     "test": "pnpm --filter http-test test"
@@ -51,7 +50,7 @@
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
   },
-  "cds" : {
+  "cds": {
     "launchpad": {
       "basePath": "/$launchpad",
       "theme": "sap_horizon"
