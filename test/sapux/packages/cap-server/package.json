@@ -1,0 +1,45 @@
+{
+  "name": "cap-server-sapux",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "repository": "<Add your repository here>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@sap/cds": "^7",
+    "@sap/xssec": "^3",
+    "express": "^4",
+    "passport": "^0",
+    "sqlite3": "5"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^1",
+    "@sap/ux-specification": "^1.120.2",
+    "cds-launchpad-plugin": "*"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "dev": "cds watch",
+    "watch-listofbooks": "cds watch --open listofbooks/webapp/index.html?sap-ui-xx-viewCache=false"
+  },
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sql"
+      },
+      "[development]": {
+        "auth": {
+          "kind": "basic"
+        }
+      },
+      "[hybrid]": {
+        "auth": {
+          "kind": "xsuaa"
+        }
+      }
+    }
+  },
+  "sapux": [
+    "app/listofbooks"
+  ]
+}

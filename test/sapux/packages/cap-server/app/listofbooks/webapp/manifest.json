@@ -1,0 +1,174 @@
+{
+  "_version": "1.59.0",
+  "sap.app": {
+    "id": "listofbooks",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.12.2",
+      "toolsId": "fef472d7-218f-4cde-9088-d964006a9bef"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/browse/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+        "inbounds": {
+            "project1-inbound": {
+                "signature": {
+                    "parameters": {},
+                    "additionalParameters": "allowed"
+                },
+                "semanticObject": "semanticObject",
+                "action": "action",
+                "title": "{{flpTitle}}",
+                "subTitle": "{{flpSubtitle}}",
+                "icon": "sap-icon://add"
+            }
+        }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.120.4",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ushell": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "listofbooks.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "ListOfBooksList",
+          "target": "ListOfBooksList"
+        },
+        {
+          "pattern": "ListOfBooks({key}):?query:",
+          "name": "ListOfBooksObjectPage",
+          "target": "ListOfBooksObjectPage"
+        },
+        {
+          "pattern": "ListOfBooks({key})/texts({key2}):?query:",
+          "name": "Books_textsObjectPage",
+          "target": "Books_textsObjectPage"
+        }
+      ],
+      "targets": {
+        "ListOfBooksList": {
+          "type": "Component",
+          "id": "ListOfBooksList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/ListOfBooks",
+              "variantManagement": "Page",
+              "navigation": {
+                "ListOfBooks": {
+                  "detail": {
+                    "route": "ListOfBooksObjectPage"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ListOfBooksObjectPage": {
+          "type": "Component",
+          "id": "ListOfBooksObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/ListOfBooks",
+              "navigation": {
+                "texts": {
+                  "detail": {
+                    "route": "Books_textsObjectPage"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Books_textsObjectPage": {
+          "type": "Component",
+          "id": "Books_textsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/ListOfBooks/texts"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  }
+}

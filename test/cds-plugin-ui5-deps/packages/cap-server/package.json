@@ -1,0 +1,42 @@
+{
+  "name": "cap-server-cds-plugin-ui5-deps",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "repository": "<Add your repository here>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@sap/cds": "^7",
+    "express": "^4",
+    "sqlite3": "5",
+    "@sap/xssec": "^3",
+    "passport": "^0"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^1",
+    "cds-plugin-ui5": "0.8.0",
+    "cds-launchpad-plugin": "*",
+    "uimodule": "*"
+  },
+  "scripts": {
+    "start": "cds-serve --port 4005",
+    "dev": "cds watch"
+  },
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sql"
+      },
+      "[development]": {
+        "auth": {
+          "kind": "basic"
+        }
+      },
+      "[hybrid]": {
+        "auth": {
+          "kind": "xsuaa"
+        }
+      }
+    }
+  }
+}
