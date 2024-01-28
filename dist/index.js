@@ -45,7 +45,7 @@ class cds_launchpad_plugin {
             cdsLaunchpadLogger._debug && cdsLaunchpadLogger.debug('serving launchpad for ', { service: service.name, at: apiPath });
             // Mount path for launchpad page
             router.use(mount, async (request, response, next) => {
-                if (request.originalUrl === options.basePath) {
+                if (request.originalUrl.startsWith(options.basePath)) {
                     response.send(await this.prepareTemplate(options));
                 }
                 else {
