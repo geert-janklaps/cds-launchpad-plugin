@@ -146,10 +146,12 @@ export class cds_launchpad_plugin{
     // Read CDS project package
     const packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
     let depsPaths = [];
-    try {
-      ({ depsPaths } = this.getAppsFromDependencies(packagejson));
-    } catch (error) {
-      cdsLaunchpadLogger.error(`Error while reading dependencies: ${error}`);
+    if (cds.env?.plugins !== undefined && cds.env?.plugins['cds-plugin-ui5']) {
+      try {
+        ({ depsPaths } = this.getAppsFromDependencies(packagejson));
+      } catch (error) {
+        cdsLaunchpadLogger.error(`Error while reading dependencies: ${error}`);
+      }
     }
 
     if(Array.isArray(packagejson.sapux)){
