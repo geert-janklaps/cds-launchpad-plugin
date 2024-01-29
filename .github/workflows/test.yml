@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    if: "github.event.pull_request.title != 'chore: release main'"
+    if: "!startsWith(github.event.pull_request.title, 'chore(main): release')"
     strategy:
       fail-fast: false
 

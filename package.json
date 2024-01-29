@@ -19,6 +19,14 @@
     "type": "git",
     "url": "git+https://github.com/geert-janklaps/cds-launchpad-plugin.git"
   },
+  "files": [
+    "dist",
+    "templates",
+    "cds-plugin.js",
+    "decs.d.ts",
+    "LICENSE",
+    "README.md"
+  ],
   "keywords": [
     "cds",
     "cap",
