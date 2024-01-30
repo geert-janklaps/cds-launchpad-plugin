@@ -60,13 +60,13 @@ async function fetchAndCheckButtonWithPuppeteer(url, buttonId, checkName) {
   ) && success;
 
   success = await fetchAndCompare(
-    'http://localhost:4005/appconfig/fioriSandboxConfig.json',
+    'http://localhost:4006/appconfig/fioriSandboxConfig.json',
     './fioriSandboxConfig-cdspluginui5.json',
     'cds-plugin-ui5 Comparison'
   ) && success;
 
   success = await fetchAndCompare(
-    'http://localhost:4006/appconfig/fioriSandboxConfig.json',
+    'http://localhost:4005/appconfig/fioriSandboxConfig.json',
     './fioriSandboxConfig-cdspluginui5deps.json',
     'cds-plugin-ui5-deps Comparison'
   ) && success;
@@ -81,12 +81,17 @@ async function fetchAndCheckButtonWithPuppeteer(url, buttonId, checkName) {
     fetchAndCheckButtonWithPuppeteer(
       'http://localhost:4005/$launchpad#semanticObject-action',
       'uimodule::ListOfBooksList--fe::FilterBar::ListOfBooks-btnSearch',
-      'Button Check for cds-plugin-ui5'
+      'Button Check for cds-plugin-ui5 deps'
     ),
     fetchAndCheckButtonWithPuppeteer(
       'http://localhost:4006/$launchpad#semanticObject-action',
       'uimodule::ListOfBooksList--fe::FilterBar::ListOfBooks-btnSearch',
-      'Button Check for cds-plugin-ui5-deps'
+      'Button Check for cds-plugin-ui5'
+    ),
+    fetchAndCheckButtonWithPuppeteer(
+      'http://localhost:4006/$launchpad#typescript-display',
+      'ui5typescript::ListOfBooksList--fe::FilterBar::ListOfBooks-btnSearch',
+      'Button Check for cds-plugin-ui5'
     )
   ];
 
