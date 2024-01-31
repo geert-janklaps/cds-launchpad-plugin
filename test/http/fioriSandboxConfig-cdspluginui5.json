@@ -23,6 +23,16 @@
                   },
                   "tileType": "sap.ushell.ui.tile.StaticTile",
                   "serviceRefreshInterval": 10000
+                },
+                {
+                  "id": "ui5typescript-typescript-display",
+                  "properties": {
+                    "targetURL": "#typescript-display",
+                    "title": "UI5 Typescript",
+                    "subtitle": "UI5 TS with cds-plugin-ui5"
+                  },
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "serviceRefreshInterval": 10000
                 }
               ]
             }
@@ -51,6 +61,21 @@
                 "applicationType": "SAPUI5",
                 "additionalInformation": "SAPUI5.Component=uimodule",
                 "url": "/uimodule"
+              }
+            },
+            "ui5typescript-typescript-display": {
+              "semanticObject": "typescript",
+              "action": "display",
+              "title": "UI5 Typescript",
+              "subTitle": "UI5 TS with cds-plugin-ui5",
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=ui5typescript",
+                "url": "/ui5typescript"
               }
             }
           }

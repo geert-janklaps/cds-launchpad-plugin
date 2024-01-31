@@ -39,6 +39,7 @@
     }
   },
   "sapux" : [
-    "app/uimodule"
+    "app/uimodule",
+    "app/ui5-typescript"
   ]
 }
