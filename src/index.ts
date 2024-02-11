@@ -192,14 +192,14 @@ export class cds_launchpad_plugin{
         }
 
         // define local to use
-        const local = []
+        const local = null;
 
         // check for existing files
-        if(options.locale && local.indexOf(options.locale) < 0 && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`)))  local.push(i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`))
-        if(cds.user?.local && local.indexOf(cds.user?.local) < 0 && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`)))  local.push(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`)) // would be great but only exists after CAP logic..
-        if(req_locale.default(request) && local.indexOf(req_locale.default(request)) < 0 && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`)))  local.push(i18nPath.replace(/(\.properties)$/, `_${req_locale.default(request)}$1`)) 
-        if(cds.env.i18n.default_language && local.indexOf(cds.env.i18n.default_language) < 0 && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`)))  local.push(i18nPath.replace(/(\.properties)$/, `_${cds.env.i18n.default_language}$1`)) 
-        if(local.indexOf('') < 0 && fs.existsSync(i18nPath)) local.push(i18nPath)  // allow fallback i18n
+        if(!local && options.locale && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`))) local = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`)
+        if(!local && cds.user?.local && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) local = i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`) // would be great but only exists after CAP logic..
+        if(!local && req_locale.default(request) && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) local = i18nPath.replace(/(\.properties)$/, `_${req_locale.default(request)}$1`)
+        if(!local && cds.env.i18n.default_language && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) local = i18nPath.replace(/(\.properties)$/, `_${cds.env.i18n.default_language}$1`)
+        if(!local && fs.existsSync(i18nPath)) local = i18nPath  // allow fallback i18n
 
         // use langu from settings options
         if (local.length > 0){ 
