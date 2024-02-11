@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as fsAsync from 'fs/promises'
 import * as appindex from '@sap/cds/app/index'
+import * as req_locale from '@sap/cds/lib/req/locale'
 //import * as cds from '@sap/cds-dk';
 import { parse, parseLines, stringify } from 'dot-properties';
 const cds = require('@sap/cds-dk');
@@ -43,7 +44,7 @@ export class cds_launchpad_plugin{
       // Mount path for launchpad sandbox configuration
       router.use('/appconfig/fioriSandboxConfig.json', async (request, response, next) => {
         // debugger;
-        response.send(await this.prepareAppConfigJSON(options));
+        response.send(await this.prepareAppConfigJSON(request, options));
       });
 
       // Component preload generation
@@ -131,7 +132,7 @@ export class cds_launchpad_plugin{
     return { appDirs, cwd, depsPaths };
 }
 
-  async prepareAppConfigJSON(options: LaunchpadConfig): Promise<string> {
+  async prepareAppConfigJSON(request: express.Request, options: LaunchpadConfig): Promise<string> {
     let template = options.template === 'legacy' || options.template === '' || options.template === undefined ? 'legacy' : options.template;
 
     // Read app config template
@@ -190,8 +191,21 @@ export class cds_launchpad_plugin{
           i18nPath += i18nsetting;
         }
 
-        if (options.locale) {
-          i18nPath = i18nPath.replace(/(\.properties)$/,`_${options.locale}$1`);
+        // define local to use
+        const local = []
+
+        // check for existing files
+        if(options.locale && local.indexOf(options.locale) < 0 && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`)))  local.push(i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`))
+        if(cds.user?.local && local.indexOf(cds.user?.local) < 0 && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`)))  local.push(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`)) // would be great but only exists after CAP logic..
+        if(req_locale.default(request) && local.indexOf(req_locale.default(request)) < 0 && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`)))  local.push(i18nPath.replace(/(\.properties)$/, `_${req_locale.default(request)}$1`)) 
+        if(cds.env.i18n.default_language && local.indexOf(cds.env.i18n.default_language) < 0 && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`)))  local.push(i18nPath.replace(/(\.properties)$/, `_${cds.env.i18n.default_language}$1`)) 
+        if(local.indexOf('') < 0 && fs.existsSync(i18nPath)) local.push(i18nPath)  // allow fallback i18n
+
+        // use langu from settings options
+        if (local.length > 0){ 
+          i18nPath = local[0]
+        } else {
+          return cdsLaunchpadLogger.error(`i18n file not found: ${i18nPath}`)
         }
         const i18n = parse(fs.readFileSync( i18nPath ).toString());
         const tileconfigs = manifest["sap.app"]?.crossNavigation?.inbounds;
