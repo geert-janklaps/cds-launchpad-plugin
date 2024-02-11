@@ -192,10 +192,10 @@ export class cds_launchpad_plugin{
         }
 
         // define locale to use
-        const locale = null;
+        let locale = null;
 
         // check for existing files
-        if(!locale && options.locale && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`))) local = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`)
+        if(!locale && options.locale && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`))) locale = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`)
         // https://cap.cloud.sap/docs/node.js/events#locale => req.locale or old (cds.user.locale)
         if(!locale && req_locale.default(request) && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) locale = i18nPath.replace(/(\.properties)$/, `_${req_locale.default(request)}$1`)
         if(!locale && cds.env.i18n.default_language && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) locale = i18nPath.replace(/(\.properties)$/, `_${cds.env.i18n.default_language}$1`)
