@@ -191,19 +191,19 @@ export class cds_launchpad_plugin{
           i18nPath += i18nsetting;
         }
 
-        // define local to use
-        const local = null;
+        // define locale to use
+        const locale = null;
 
         // check for existing files
-        if(!local && options.locale && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`))) local = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`)
-        if(!local && cds.user?.local && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) local = i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`) // would be great but only exists after CAP logic..
-        if(!local && req_locale.default(request) && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) local = i18nPath.replace(/(\.properties)$/, `_${req_locale.default(request)}$1`)
-        if(!local && cds.env.i18n.default_language && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) local = i18nPath.replace(/(\.properties)$/, `_${cds.env.i18n.default_language}$1`)
-        if(!local && fs.existsSync(i18nPath)) local = i18nPath  // allow fallback i18n
+        if(!locale && options.locale && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`))) local = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`)
+        // https://cap.cloud.sap/docs/node.js/events#locale => req.locale or old (cds.user.locale)
+        if(!locale && req_locale.default(request) && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) locale = i18nPath.replace(/(\.properties)$/, `_${req_locale.default(request)}$1`)
+        if(!locale && cds.env.i18n.default_language && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) locale = i18nPath.replace(/(\.properties)$/, `_${cds.env.i18n.default_language}$1`)
+        if(!locale && fs.existsSync(i18nPath)) locale = i18nPath  // allow fallback i18n
 
         // use langu from settings options
-        if (local.length > 0){ 
-          i18nPath = local[0]
+        if (locale){ 
+          i18nPath = locale
         } else {
           return cdsLaunchpadLogger.error(`i18n file not found: ${i18nPath}`)
         }
