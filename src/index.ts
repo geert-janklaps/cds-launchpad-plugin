@@ -33,7 +33,8 @@ export class cds_launchpad_plugin{
 
       // Mount path for launchpad page
       router.use(mount, async (request: express.Request, response: express.Response, next) => {
-        if(request.originalUrl.startsWith(options.basePath)) {
+        const originalUrl = new URL(request.originalUrl, `${request.protocol}://${request.hostname}`);
+        if (originalUrl.pathname === options.basePath) {
           response.send(await this.prepareTemplate(options));
         } else {
             next();
