@@ -195,11 +195,10 @@ export class cds_launchpad_plugin{
         let locale = null;
 
         // check for existing files
-        if(!locale && options.locale && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`))) locale = i18nPath.replace(/(\.properties)$/, `_${options.locale}$1`)
-        // https://cap.cloud.sap/docs/node.js/events#locale => req.locale or old (cds.user.locale)
-        if(!locale && req_locale.default(request) && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) locale = i18nPath.replace(/(\.properties)$/, `_${req_locale.default(request)}$1`)
-        if(!locale && cds.env.i18n.default_language && fs.existsSync(i18nPath.replace(/(\.properties)$/, `_${cds.user?.local}$1`))) locale = i18nPath.replace(/(\.properties)$/, `_${cds.env.i18n.default_language}$1`)
-        if(!locale && fs.existsSync(i18nPath)) locale = i18nPath  // allow fallback i18n
+        if (!locale) locale = this.checkI18nFile(i18nPath, options.locale);
+        if (!locale) locale = this.checkI18nFile(i18nPath, req_locale.default(request)); // https://cap.cloud.sap/docs/node.js/events#locale => req.locale or old (cds.user.locale)
+        if (!locale) locale = this.checkI18nFile(i18nPath, cds.env.i18n.default_language);
+        if (!locale && fs.existsSync(i18nPath)) locale = i18nPath; // allow fallback i18n
 
         // use langu from settings options
         if (locale){ 
@@ -267,5 +266,15 @@ export class cds_launchpad_plugin{
       });
 
     return config;
+  }
+	
+ checkI18nFile(i18nPath: String, locale: string){
+    const fileName = i18nPath.replace(/(\.properties)$/, `_${locale}$1`);
+    if(fs.existsSync(fileName)){
+      return fileName;
+    } else{
+      cdsLaunchpadLogger.debug(`could not read i18n file: ${fileName}`)
+    } 
+    return undefined;
   }
 }
