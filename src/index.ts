@@ -14,7 +14,8 @@ export interface LaunchpadConfig {
   basePath?: string,
   appConfigPath?: string,
   locale?: string, // TODO if it was possible to get sap-ui-language from request which retrieves the app config json, we wouldnt need this option
-  template?: string
+  template?: string,
+  modulePaths?: object
 }
 
 export class cds_launchpad_plugin{
@@ -92,7 +93,11 @@ export class cds_launchpad_plugin{
   async prepareTemplate(options: LaunchpadConfig): Promise<string>{
     let url = `https://ui5.sap.com`;
     let template = options.template === 'legacy' || options.template === '' || options.template === undefined ? 'legacy' : options.template;
-    const htmltemplate = fs.readFileSync(__dirname + `/../templates/${template}/launchpad.html`).toString();
+    let htmltemplate = fs.readFileSync(__dirname + `/../templates/${template}/launchpad.html`).toString();
+    if(options.modulePaths) {
+        const modulePathsJson = JSON.stringify(options.modulePaths);
+        htmltemplate = htmltemplate.replace('/* MODULE_PATHS */', `modulePaths: ${modulePathsJson}`);
+    }
     if (options.version && options.version.startsWith('https://')) {
       url = options.version
     } else if(options.version !== undefined && options.version !== ''){
