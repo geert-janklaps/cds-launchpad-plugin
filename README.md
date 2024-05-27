@@ -27,7 +27,8 @@ Optionally you can configure the cds-launchpad-plugin by adding following config
     "basePath": "", // Path under which you want the sandbox to be served
     "appConfigPath": "", // External sandbox appconfig json file to be merged with generated appconfig
     "locale": "", // Language to be used for the sandbox environment
-    "template": "" // 'legacy' (non-async launchpad, default) or 'async' (async launchpad)
+    "template": "" ,// 'legacy' (non-async launchpad, default) or 'async' (async launchpad),
+    "modulePaths": "" // object with module paths to be used in the launchpad.html file for "sap-ushell-config"
   }
 }
 ```
@@ -70,7 +71,8 @@ Call `setup({...})` method with the following object (configuration object can b
   basePath: '', // Path under which you want the sandbox to be served
   appConfigPath: '', // External sandbox appconfig json file to be merged with generated appconfig
   locale: '', // Language to be used for the sandbox environment
-  template: '' // 'legacy' (non-async launchpad) or 'async' (async launchpad)
+  template: '', // 'legacy' (non-async launchpad) or 'async' (async launchpad)
+  modulePaths: '' // object with module paths to be used in the launchpad.html file for "sap-ushell-config"
 }
 ```
 
