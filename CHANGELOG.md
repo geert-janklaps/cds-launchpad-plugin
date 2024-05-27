@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/geert-janklaps/cds-launchpad-plugin/compare/v2.1.8...v2.2.0) (2024-05-27)
+
+
+### Features
+
+* define `modulePaths` in launchpad.html file ([#44](https://github.com/geert-janklaps/cds-launchpad-plugin/issues/44)) ([3a5429d](https://github.com/geert-janklaps/cds-launchpad-plugin/commit/3a5429d80a9c590415ac74c38a2bcee2c59a5792))
+
 ## [2.1.8](https://github.com/geert-janklaps/cds-launchpad-plugin/compare/v2.1.7...v2.1.8) (2024-02-12)
 
 
