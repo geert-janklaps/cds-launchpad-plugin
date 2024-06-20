@@ -175,10 +175,9 @@ export class cds_launchpad_plugin{
 
         if (manifest["sap.flp"]?.type === 'plugin') {
             const component = appId;
-            const name = component.split('.').pop();
-            config.bootstrapPlugins[name] = {
+            config.bootstrapPlugins[component] = {
                 component,
-                url: name + "/webapp",
+                url: component + "/webapp",
                 'sap-ushell-plugin-type': 'RendererExtensions',
                 enabled: true
             }
