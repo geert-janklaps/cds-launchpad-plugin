@@ -5,6 +5,7 @@ import * as fsAsync from 'fs/promises'
 import * as appindex from '@sap/cds/app/index'
 //import * as cds from '@sap/cds-dk';
 import { parse, parseLines, stringify } from 'dot-properties';
+import { MiddlewareConfig, generatePreviewFiles } from '@sap-ux/preview-middleware';
 const cds = require('@sap/cds-dk');
 
 const cdsLaunchpadLogger = cds.log('cds-launchpad-plugin');
@@ -104,8 +105,21 @@ export class cds_launchpad_plugin{
       url = url + '/' + options.version;
     }
 
-    return htmltemplate.replace(/LIB_URL/g, url)
-                       .replace(/THEME/g, options.theme);
+    const config = {
+      flp: {
+        path: '/test/flpSandbox.html',
+        intent: { object: 'myapp', action: 'myaction' },
+      },
+    } satisfies MiddlewareConfig;
+    const basePath = '../uimodule/';
+    const fs = await generatePreviewFiles(basePath, {});
+    const files = fs.dump(basePath);
+
+    return files['webapp/test/flp.html'].contents;
+
+    return htmltemplate
+      .replace(/LIB_URL/g, url)
+      .replace(/THEME/g, options.theme);
   }
 
   getAppsFromDependencies(packagejson: any) {
