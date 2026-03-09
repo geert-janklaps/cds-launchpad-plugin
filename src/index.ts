@@ -29,7 +29,7 @@ export class cds_launchpad_plugin{
 
     cds.on('serving', async (service) => {
       const apiPath = options.basePath;
-      const mount = apiPath.replace('$','[\\$]')
+      const mount = apiPath
       cdsLaunchpadLogger._debug && cdsLaunchpadLogger.debug ('serving launchpad for ', {service: service.name, at: apiPath})
 
       // Mount path for launchpad page
