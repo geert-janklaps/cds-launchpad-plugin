@@ -102,7 +102,7 @@ export class cds_launchpad_plugin{
         const modulePathsJson = JSON.stringify(options.modulePaths);
         htmltemplate = htmltemplate.replace('/* MODULE_PATHS */', `modulePaths: ${modulePathsJson}`);
     }
-    if (options.version && options.version.startsWith('https://')) {
+    if (options.version && (options.version.startsWith('https://') || options.version.startsWith('http://'))) {
       url = options.version
     } else if(options.version !== undefined && options.version !== ''){
       url = url + '/' + options.version;
