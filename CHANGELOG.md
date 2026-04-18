@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1](https://github.com/geert-janklaps/cds-launchpad-plugin/compare/v2.2.0...v2.2.1) (2026-04-18)
+
+
+### Bug Fixes
+
+* backward compatibilty express v4 ([b865454](https://github.com/geert-janklaps/cds-launchpad-plugin/commit/b8654544e534f839d670f6f6015987738574f2bf))
+
 ## [2.2.0](https://github.com/geert-janklaps/cds-launchpad-plugin/compare/v2.1.8...v2.2.0) (2024-05-27)
 
 
