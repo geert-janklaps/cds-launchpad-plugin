@@ -24,6 +24,8 @@ export class cds_launchpad_plugin{
       cdsLaunchpadLogger.debug('Sandbox launchpad not initialized as the process runs in production ')
       return
     }
+    // Load correct env for project path
+    cds.env = cds.env.for("cds", cds.root ?? process.cwd());
     let options: LaunchpadConfig = cds.env.launchpad;
     const router = express.Router();
 
@@ -48,6 +50,8 @@ export class cds_launchpad_plugin{
         response.send(await this.prepareAppConfigJSON(options));
       });
 
+      // Load correct env for project path
+      cds.env = cds.env.for("cds", cds.root ?? process.cwd());
       // Component preload generation
       const componentPreloadCache = new Map()
       const _componentPreload = async (appName: String) => {
@@ -148,7 +152,8 @@ export class cds_launchpad_plugin{
 
     // merge the two
     Object.assign(config, extConfig);
-
+    // Load correct env for project path
+    cds.env = cds.env.for("cds", cds.root ?? process.cwd());
     // Read CDS project package
     const packagejson = JSON.parse(fs.readFileSync(cds.root + '/package.json').toString());
     let depsPaths = [];
