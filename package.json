@@ -1,6 +1,6 @@
 {
   "name": "cds-launchpad-plugin",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Launchpad Plugin for demo / development / testing SAP CAP-based projects",
   "main": "dist/index.js",
   "types": "dist/index",
@@ -64,7 +64,7 @@
   },
   "cds": {
     "launchpad": {
-      "basePath": "/$launchpad",
+      "basePath": "/launchpad",
       "theme": "sap_horizon"
     }
   }
