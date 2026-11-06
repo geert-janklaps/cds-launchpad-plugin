@@ -84,7 +84,7 @@ export class cds_launchpad_plugin{
           if(typeof content !== 'string') {
             content = content.toString();
           }
-          const htmlContent = content.replace(/<h2> Web Applications: <\/h2>/, `<h2><b><a href="${options.basePath}">Sandbox Launchpad</a></b></h2><h2>Web Applications: </h2>`);
+          const htmlContent = content.replace(/<h2>\s*Web (?:Applications|Apps):\s*<\/h2>/, (heading: string) => `<h2><b><a href="${options.basePath}">Sandbox Launchpad</a></b></h2>${heading}`);
           end.call(res, htmlContent, encoding);
       } as any;
 
