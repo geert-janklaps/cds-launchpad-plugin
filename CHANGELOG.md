@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.1](https://github.com/geert-janklaps/cds-launchpad-plugin/compare/v2.2.0...v2.2.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* backward compatibilty express v4 ([b865454](https://github.com/geert-janklaps/cds-launchpad-plugin/commit/b8654544e534f839d670f6f6015987738574f2bf))
+* sandbox launchpad link ([#58](https://github.com/geert-janklaps/cds-launchpad-plugin/issues/58)) ([0dbc1e7](https://github.com/geert-janklaps/cds-launchpad-plugin/commit/0dbc1e7a7cb106903d621c8fef4828892d4eb746))
+
 ## [2.2.0](https://github.com/geert-janklaps/cds-launchpad-plugin/compare/v2.1.8...v2.2.0) (2024-05-27)
 
 
